@@ -1,4 +1,4 @@
-package starter.springsecurity.domain.vo;
+package starter.springsecurity.domain.entity.vo;
 
 import lombok.*;
 

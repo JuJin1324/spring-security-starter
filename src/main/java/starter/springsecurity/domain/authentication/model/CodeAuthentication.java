@@ -1,7 +1,7 @@
-package starter.springsecurity.domain.authentication;
+package starter.springsecurity.domain.authentication.model;
 
 import lombok.Getter;
-import starter.springsecurity.domain.entity.BooleanConverter;
+import starter.springsecurity.domain.entity.converter.BooleanConverter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

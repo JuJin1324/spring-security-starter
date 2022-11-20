@@ -1,4 +1,4 @@
-package starter.springsecurity.domain.entity;
+package starter.springsecurity.domain.entity.converter;
 
 import org.springframework.util.ObjectUtils;
 

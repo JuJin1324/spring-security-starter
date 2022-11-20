@@ -1,9 +1,9 @@
-package starter.springsecurity.domain.authentication;
+package starter.springsecurity.domain.authentication.model;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import starter.springsecurity.domain.vo.PhoneNumber;
+import starter.springsecurity.domain.entity.vo.PhoneNumber;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Embedded;

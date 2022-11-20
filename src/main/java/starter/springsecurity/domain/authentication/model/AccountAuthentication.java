@@ -1,4 +1,4 @@
-package starter.springsecurity.domain.authentication;
+package starter.springsecurity.domain.authentication.model;
 
 import lombok.Getter;
 
