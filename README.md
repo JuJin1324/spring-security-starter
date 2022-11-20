@@ -51,7 +51,10 @@
 ### http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) 
 > 세션을 사용하지 않는다고 설정한다.
 
-## 작업
-### 1.JWT Login Process
+## CSRF 공격
+### CSRF 공격이란?
+> 크로스 사이트 요청 위조는 사용자가 인증한 세션에서 웹 애플리케이션이 정상적인 요청과 비정상적인 요청을 구분하지 못하는 점을 악용하는 공격 방식
+> 즉, 세션을 이용한 인증 유지의 경우 csrf 보안 옵션 활성화가 필요하고, JWT 처럼 세션이 아닌 토큰 인증 방식에서는 csrf 보안 옵션 활성화가 필요 없음.
 
-### 2.Account Login Process
+### 참조사이트
+> [크로스 사이트 요청 위조란?](https://nordvpn.com/ko/blog/csrf/)
