@@ -1,1 +1,4 @@
-
+web:
+    jwt:
+        provider:
+            secret-key: springSecurityStarterSecretKey

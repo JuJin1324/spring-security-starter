@@ -30,12 +30,13 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
+    private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String token = resolveToken((HttpServletRequest) request);
-        if (StringUtils.hasText(token) && JwtTokenProvider.validateToken(token)) {
+        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
             Authentication authentication = getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
@@ -48,7 +49,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     }
 
     private Authentication getAuthentication(String token) {
-        Map<String, Object> payload = JwtTokenProvider.getPayload(token);
+        Map<String, Object> payload = jwtTokenProvider.getPayload(token);
         PhoneNumber phoneNumber = (PhoneNumber) payload.get("phoneNumber");
         UserDetails userDetails = userDetailsService.loadUserByUsername(phoneNumber.getPhoneNo());
 

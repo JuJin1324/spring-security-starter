@@ -3,8 +3,10 @@ package starter.springsecurity.web.provider;
 import io.jsonwebtoken.*;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-import java.nio.charset.StandardCharsets;
+import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -17,18 +19,26 @@ import java.util.Map;
  * Created Date : 2022/10/24
  */
 
+@Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JwtTokenProvider {
-    /* 토큰을 암호화할 secretKey: 값 세팅만 하고 실제 메서드에서 사용은 secretKeyBase64 로만 한다. */
-    private static final String secretKey          = "springSecurityStarterSecretKey";
-    private static final String secretKeyBase64    = Base64.getEncoder().encodeToString(secretKey.getBytes());
     /* 토큰 유효시간 30분 */
-    private static final long   tokensValidMinutes = 30;
+    private static final long tokensValidMinutes = 30;
+
+    /* 토큰을 암호화할 secretKey: 값 세팅만 하고 실제 메서드에서 사용은 secretKeyBase64 로만 한다. */
+    @Value("${web.jwt.provider.secret-key}")
+    private String secretKey;
+    private String secretKeyBase64;
+
+    @PostConstruct
+    private void postConstruct() {
+        this.secretKeyBase64 = Base64.getEncoder().encodeToString(secretKey.getBytes());
+    }
 
     /**
      * 토큰 생성
      */
-    public static String createToken(String subject, Map<String, Object> payload) {
+    public String createToken(String subject, Map<String, Object> payload) {
         Map<String, Object> headers = new HashMap<>();
         headers.put("alg", "HS256");
         headers.put("typ", "JWT");
@@ -48,7 +58,7 @@ public class JwtTokenProvider {
     /**
      * 페이로드 조회
      */
-    public static Map<String, Object> getPayload(String token) throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
+    public Map<String, Object> getPayload(String token) throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
         return Jwts.parser()
                 .setSigningKey(secretKeyBase64) // Set Key
                 .parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러
@@ -58,7 +68,7 @@ public class JwtTokenProvider {
     /**
      * 토큰 검증
      */
-    public static boolean validateToken(String token) {
+    public boolean validateToken(String token) {
         try {
             Jws<Claims> claims = Jwts.parser()
                     .setSigningKey(secretKeyBase64)
