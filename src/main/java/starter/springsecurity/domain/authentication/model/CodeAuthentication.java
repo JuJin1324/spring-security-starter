@@ -1,10 +1,13 @@
 package starter.springsecurity.domain.authentication.model;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import starter.springsecurity.domain.entity.BaseTimeEntity;
 import starter.springsecurity.domain.entity.converter.BooleanConverter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)
@@ -16,10 +19,14 @@ import java.time.LocalDateTime;
 @DiscriminatorColumn(name = "type")
 @Table(name = "code_auth")
 @Getter
-public abstract class CodeAuthentication {
+public abstract class CodeAuthentication extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter(AccessLevel.PROTECTED)
     private Long id;
+
+    @Column(name = "uuid")
+    private UUID uuid;
 
     @Column(name = "verification_code")
     private String verificationCode;
@@ -32,6 +39,7 @@ public abstract class CodeAuthentication {
     private LocalDateTime expirationTimeUTC;
 
     protected CodeAuthentication() {
+        this.uuid = UUID.randomUUID();
         this.authenticated = false;
     }
 

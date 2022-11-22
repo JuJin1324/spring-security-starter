@@ -38,11 +38,12 @@
 
 ## JWT 로 접근 인증하는 도메인
 ### Authentication
-> 전화번호 인증 생성: `POST /authentication/phone`  
-> 전화번호 인증 검증: `POST`
+> 전화번호 인증 생성: `POST /authentications/phone`  
+> 전화번호 인증 검증: `POST /authentications/phone?verify=login`
 
 ### User
->
+> 회원 생성: `POST /users`  
+> 회원 단건 조회: `GET /users/{userId}`  
 
 ## JWT Security setting
 ### authorizeRequests

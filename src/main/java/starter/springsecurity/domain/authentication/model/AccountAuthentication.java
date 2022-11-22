@@ -1,10 +1,11 @@
 package starter.springsecurity.domain.authentication.model;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.UUID;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)
@@ -15,11 +16,16 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "type")
 @Table(name = "account_auth")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public abstract class AccountAuthentication {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter(AccessLevel.PROTECTED)
     private Long id;
+
+    @Column(name = "uuid")
+    private UUID uuid;
 
     @Column(name = "login_name")
     private String loginName;
@@ -27,6 +33,9 @@ public abstract class AccountAuthentication {
     @Column(name = "password")
     private String password;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    private List<String> roles = new ArrayList<>();
+    protected AccountAuthentication(String loginName, String password) {
+        this.uuid = UUID.randomUUID();
+        this.loginName = loginName;
+        this.password = password;
+    }
 }
