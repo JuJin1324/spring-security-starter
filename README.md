@@ -37,13 +37,45 @@
 > [크로스 사이트 요청 위조란?](https://nordvpn.com/ko/blog/csrf/)
 
 ## JWT 로 접근 인증하는 도메인
+> 1.전화번호 인증 생성 -> 2.전화번호 인증 검증(verificationCode 는 DB에서 직접 조회해서 찾는다.) 
+> -> 3.회원 생성(이미 생성한 회원이면 건너뛴다.) -> 4.인증 토큰 조회 -> 5.회원 단건 조회
+
 ### Authentication
 > 전화번호 인증 생성: `POST /authentications/phone`  
-> 전화번호 인증 검증: `POST /authentications/phone?verify=login`
+> 전화번호 인증 검증: `POST /authentications/phone?verify=login`  
+> 인증 토큰 조회: `GET /authentications/token`  
+
+### 전화번호 인증 생성
+> URI: `POST /authentications/phone`  
+> Request body: `{"countryCode": "82", "phoneNo": "01012341234"}`  
+> Response status: `201 Created`   
+
+### 전화번호 인증 검증
+> URI: `POST /authentications/phone`  
+> Request param: `verify=true`  
+> Request body: `{"countryCode": "82", "phoneNo": "01012341234", "verificationCode": "123456"}`
+> Response body: `{"authId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "userId": "optional"}`  
+
+### 인증 토큰 조회
+> URI: `GET /authentications/token`
+> Request param: `authId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+> Response body: `{"accessToken": "", "refreshToken": ""}`
 
 ### User
-> 회원 생성: `POST /users`  
-> 회원 단건 조회: `GET /users/{userId}`  
+> 회원 생성: `POST /users`    
+> 회원 단건 조회: `GET /users/{userId}`    
+
+###  회원 생성
+> URI: `POST /users`  
+> Request body: `{"nickname": "닉네임"}`  
+> Request header: `Authorization: xxxxxxxxxxxxxxxxxxxxxxxxxxx(authId)`    
+> Response status: `201 Created`  
+> Response body: `{"userId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}`  
+
+### 회원 단건 조회
+> URI: `GET /users/{userId}`  
+> Request header: `Authorization: Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxx(accessToken)`  
+> Response body: `{"userId": "", "nickname": ""}`
 
 ## JWT Security setting
 ### authorizeRequests

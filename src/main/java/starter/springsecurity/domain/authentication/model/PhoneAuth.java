@@ -21,11 +21,11 @@ import javax.persistence.Table;
 @Table(name = "phone_auth")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PhoneAuthentication extends CodeAuthentication {
+public class PhoneAuth extends CodeAuth {
     @Embedded
     private PhoneNumber phoneNumber;
 
-    public PhoneAuthentication(PhoneNumber phoneNumber) {
+    public PhoneAuth(PhoneNumber phoneNumber) {
         super();
         this.phoneNumber = phoneNumber;
     }

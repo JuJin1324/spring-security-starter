@@ -18,7 +18,7 @@ import java.util.UUID;
 @Table(name = "account_auth")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public abstract class AccountAuthentication {
+public abstract class AccountAuth {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter(AccessLevel.PROTECTED)
@@ -33,7 +33,7 @@ public abstract class AccountAuthentication {
     @Column(name = "password")
     private String password;
 
-    protected AccountAuthentication(String loginName, String password) {
+    protected AccountAuth(String loginName, String password) {
         this.uuid = UUID.randomUUID();
         this.loginName = loginName;
         this.password = password;

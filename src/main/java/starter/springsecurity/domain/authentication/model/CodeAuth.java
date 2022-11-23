@@ -19,7 +19,7 @@ import java.util.UUID;
 @DiscriminatorColumn(name = "type")
 @Table(name = "code_auth")
 @Getter
-public abstract class CodeAuthentication extends BaseTimeEntity {
+public abstract class CodeAuth extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Getter(AccessLevel.PROTECTED)
@@ -38,7 +38,7 @@ public abstract class CodeAuthentication extends BaseTimeEntity {
     @Column(name = "expiration_time")
     private LocalDateTime expirationTimeUTC;
 
-    protected CodeAuthentication() {
+    protected CodeAuth() {
         this.uuid = UUID.randomUUID();
         this.authenticated = false;
     }
