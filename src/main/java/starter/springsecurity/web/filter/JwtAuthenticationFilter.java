@@ -29,16 +29,15 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends GenericFilterBean {
-    private final JwtTokenProvider jwtTokenProvider;
     private final UserDetailsService userDetailsService;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String token = resolveToken((HttpServletRequest) request);
-        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
-            Authentication authentication = getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
+//        if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
+//            Authentication authentication = getAuthentication(token);
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//        }
 
         chain.doFilter(request, response);
     }
@@ -48,10 +47,11 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     }
 
     private Authentication getAuthentication(String token) {
-        Map<String, Object> payload = jwtTokenProvider.getPayload(token);
-        PhoneNumber phoneNumber = (PhoneNumber) payload.get("phoneNumber");
-        UserDetails userDetails = userDetailsService.loadUserByUsername(phoneNumber.getPhoneNo());
-
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+//        Map<String, Object> payload = jwtTokenProvider.getPayload(token);
+//        PhoneNumber phoneNumber = (PhoneNumber) payload.get("phoneNumber");
+//        UserDetails userDetails = userDetailsService.loadUserByUsername(phoneNumber.getPhoneNo());
+//
+//        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        return null;
     }
 }

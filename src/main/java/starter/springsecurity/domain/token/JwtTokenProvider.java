@@ -19,26 +19,17 @@ import java.util.Map;
  * Created Date : 2022/10/24
  */
 
-@Component
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class JwtTokenProvider {
-    /* 토큰 유효시간 30분 */
-    private static final long tokensValidMinutes = 30;
+    private final String secretKeyBase64;
 
-    /* 토큰을 암호화할 secretKey: 값 세팅만 하고 실제 메서드에서 사용은 secretKeyBase64 로만 한다. */
-    @Value("${web.jwt.provider.secret-key}")
-    private String secretKey;
-    private String secretKeyBase64;
-
-    @PostConstruct
-    private void postConstruct() {
+    public JwtTokenProvider(String secretKey) {
         this.secretKeyBase64 = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
     /**
      * 토큰 생성
      */
-    public String createToken(String subject, Map<String, Object> payload) {
+    public String createToken(String subject, Map<String, Object> payload, long tokensValidMinutes) {
         Map<String, Object> headers = new HashMap<>();
         headers.put("alg", "HS256");
         headers.put("typ", "JWT");

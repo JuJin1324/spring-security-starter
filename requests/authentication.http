@@ -1,0 +1,17 @@
+### CreatePhoneAuth
+POST http://localhost:8999/authentication/phone
+Content-Type: application/json
+
+{
+  "countryCode": "82",
+  "phoneNo": "01012341234"
+}
+
+### VerifyPhoneAuth
+POST http://localhost:8999/authentication/phone?verify=true
+Content-Type: application/json
+
+{
+  "authId": "0a3045fa-e886-4143-a02b-5be1786e9b33",
+  "verificationCode": "438136"
+}

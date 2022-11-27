@@ -1,9 +1,6 @@
 package starter.springsecurity.web.controller;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +12,7 @@ import starter.springsecurity.domain.token.registration.RegistrationTokenService
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.UUID;
 
 /**
@@ -72,9 +70,10 @@ public class AuthenticationController {
 
     @NoArgsConstructor
     @AllArgsConstructor
+    @Setter
     @Getter
     static class VerifyPhoneAuthRequest {
-        @NotBlank
+        @NotNull
         private UUID   authId;
         @NotBlank
         private String verificationCode;
