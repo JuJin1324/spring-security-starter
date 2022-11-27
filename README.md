@@ -79,6 +79,15 @@
 > Response body: `{"userId": "", "nickname": ""}`
 
 ## JWT Security setting
+### WebSecurityCustomizer
+> 인증(Authentication) 이 필요없는 URI 는 `WebSecurityCustomizer` 를 Bean 으로 등록   
+> ```java
+> @Bean
+> public WebSecurityCustomizer webSecurityCustomizer() {
+>   return (web) -> web.ignoring().antMatchers("/authentication/**");
+> }
+> ```
+
 ### authorizeRequests
 > `http.authorizeRequests`: 요청에 대한 사용권한 체크
 
