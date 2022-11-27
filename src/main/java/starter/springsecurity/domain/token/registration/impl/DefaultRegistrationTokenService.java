@@ -2,9 +2,10 @@ package starter.springsecurity.domain.token.registration.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import starter.springsecurity.domain.token.JwtTokenProvider;
-import starter.springsecurity.domain.token.registration.InvalidRegistrationException;
+import starter.springsecurity.domain.token.registration.InvalidRegistrationTokenException;
 import starter.springsecurity.domain.token.registration.RegistrationTokenService;
 
 import javax.annotation.PostConstruct;
@@ -42,12 +43,16 @@ public class DefaultRegistrationTokenService implements RegistrationTokenService
     }
 
     @Override
-    public void validateRegistrationToken(String registrationToken) throws InvalidRegistrationException {
+    public UUID getAuthId(String registrationToken) {
+        validateRegistrationToken(registrationToken);
 
+        Map<String, Object> payload = jwtTokenProvider.getPayload(registrationToken);
+        return (UUID) payload.get(PAYLOAD_AUTH_ID_KEY);
     }
 
-    @Override
-    public UUID getAuthId(String registrationToken) {
-        return null;
+    private void validateRegistrationToken(String registrationToken) {
+        if (!jwtTokenProvider.validateToken(registrationToken)) {
+            throw new InvalidRegistrationTokenException();
+        }
     }
 }

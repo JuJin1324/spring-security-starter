@@ -3,7 +3,9 @@ package starter.springsecurity.web.controller;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import starter.springsecurity.domain.authentication.service.AuthenticationService;
 import starter.springsecurity.domain.entity.vo.PhoneNumber;
 import starter.springsecurity.domain.user.dto.UserCreateDto;
 import starter.springsecurity.domain.user.dto.UserReadDto;
@@ -21,12 +23,15 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    private final UserService userService;
+    private final AuthenticationService authenticationService;
+    private final UserService           userService;
 
     @PostMapping("")
-    public CreateUserResponse createUser(@RequestBody @Valid UserCreateDto createDto) {
-        /* TODO: security context 에서 가져오기 */
-        PhoneNumber phoneNumber = new PhoneNumber("82", "01012341234");
+    public CreateUserResponse createUser(Authentication authentication,
+                                         @RequestBody @Valid UserCreateDto createDto) {
+        UUID authId = (UUID) authentication.getPrincipal();
+
+        PhoneNumber phoneNumber = authenticationService.getAuthenticatedPhoneNumber(authId);
         UUID userId = userService.createUser(phoneNumber, createDto);
 
         return new CreateUserResponse(userId);

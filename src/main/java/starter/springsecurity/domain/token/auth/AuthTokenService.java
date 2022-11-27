@@ -20,22 +20,17 @@ public interface AuthTokenService {
     AuthTokenReadDto updateAuthToken(String refreshToken);
 
     /**
-     * 토큰 검증 - access token
-     */
-    void validateAccessToken(String accessToken);
-
-    /**
      * 매개변수 accessToken 의 userId 와 매개변수 userId 가 일치하는지 확인
      */
     boolean isUserIdMatchedWithToken(String accessToken, UUID userId);
 
     /**
-     * userId 가져오기 - access token
+     * userId 가져오기
      */
-    UUID getUserIdByAccessToken(String accessToken);
+    UUID getUserId(String accessToken);
 
     /**
      * 리프레쉬 토큰 만료
      */
-    void expireRefreshToken(UUID userId) throws RefreshTokenIsAlreadyExpiredException;
+    void expireRefreshToken(UUID userId) throws InvalidRefreshTokenException;
 }

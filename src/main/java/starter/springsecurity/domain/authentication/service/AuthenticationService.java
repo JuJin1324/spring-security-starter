@@ -20,4 +20,9 @@ public interface AuthenticationService {
      * 폰 인증 검증
      */
     void verifyPhoneAuth(UUID authId, String verificationCode);
+
+    /**
+     * 인증된 폰 번호 조회
+     */
+    PhoneNumber getAuthenticatedPhoneNumber(UUID authId);
 }

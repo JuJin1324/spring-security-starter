@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service;
 import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
 import starter.springsecurity.domain.token.JwtTokenProvider;
 import starter.springsecurity.domain.token.auth.AuthTokenService;
-import starter.springsecurity.domain.token.auth.RefreshTokenIsAlreadyExpiredException;
+import starter.springsecurity.domain.token.auth.InvalidAccessTokenException;
+import starter.springsecurity.domain.token.auth.InvalidRefreshTokenException;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -53,10 +54,8 @@ public class DefaultAuthTokenService implements AuthTokenService {
         return null;
     }
 
-    @Override
-    public void validateAccessToken(String accessToken) {
 
-    }
+
 
     @Override
     public boolean isUserIdMatchedWithToken(String accessToken, UUID userId) {
@@ -64,12 +63,18 @@ public class DefaultAuthTokenService implements AuthTokenService {
     }
 
     @Override
-    public UUID getUserIdByAccessToken(String accessToken) {
+    public UUID getUserId(String accessToken) {
         return null;
     }
 
     @Override
-    public void expireRefreshToken(UUID userId) throws RefreshTokenIsAlreadyExpiredException {
+    public void expireRefreshToken(UUID userId) throws InvalidRefreshTokenException {
 
+    }
+
+    private void validateAccessToken(String accessToken) {
+        if (!jwtTokenProvider.validateToken(accessToken)) {
+            throw new InvalidAccessTokenException();
+        }
     }
 }

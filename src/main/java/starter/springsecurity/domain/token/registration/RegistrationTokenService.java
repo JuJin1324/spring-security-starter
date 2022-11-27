@@ -13,11 +13,6 @@ public interface RegistrationTokenService {
     String createRegistrationToken(UUID authId);
 
     /**
-     * 등록 토큰 검증
-     */
-    void validateRegistrationToken(String registrationToken) throws InvalidRegistrationException;
-
-    /**
      * authId 가져오기
      */
     UUID getAuthId(String registrationToken);

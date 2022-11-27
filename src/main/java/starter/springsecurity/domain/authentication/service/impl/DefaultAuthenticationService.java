@@ -3,11 +3,11 @@ package starter.springsecurity.domain.authentication.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
+import starter.springsecurity.domain.authentication.exception.PhoneAuthNotFoundException;
+import starter.springsecurity.domain.authentication.exception.PhoneHasNotAuthenticatedException;
 import starter.springsecurity.domain.authentication.model.PhoneAuth;
 import starter.springsecurity.domain.authentication.repository.PhoneAuthRepository;
 import starter.springsecurity.domain.authentication.service.AuthenticationService;
-import starter.springsecurity.domain.authentication.exception.PhoneAuthNotFoundException;
 import starter.springsecurity.domain.entity.vo.PhoneNumber;
 
 import java.util.Random;
@@ -49,6 +49,18 @@ public class DefaultAuthenticationService implements AuthenticationService {
         if (!phoneAuth.verifyCode(verificationCode)) {
             throw new RuntimeException("Tried invalid verification code.");
         }
+    }
+
+    @Override
+    public PhoneNumber getAuthenticatedPhoneNumber(UUID authId) {
+        PhoneAuth phoneAuth = phoneAuthRepository.findByUuid(authId)
+                .orElseThrow(PhoneAuthNotFoundException::new);
+
+        if (!phoneAuth.hasAuthenticated()) {
+            throw new PhoneHasNotAuthenticatedException();
+        }
+
+        return phoneAuth.getPhoneNumber();
     }
 
     private String generateVerificationCode() {

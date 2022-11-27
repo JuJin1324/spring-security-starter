@@ -4,9 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import starter.springsecurity.domain.token.auth.AuthTokenService;
+import starter.springsecurity.domain.token.registration.RegistrationTokenService;
 import starter.springsecurity.web.filter.JwtAuthenticationFilter;
 
 /**
@@ -15,27 +19,33 @@ import starter.springsecurity.web.filter.JwtAuthenticationFilter;
  */
 
 @Configuration
+@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final RegistrationTokenService registrationTokenService;
+    private final AuthTokenService         authTokenService;
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().antMatchers("/authentication/**");
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable();
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(registrationTokenService, authTokenService);
 
-        /* Json Web Token Security setting for using service APIs. */
         http
-                .authorizeRequests()    /* 요청에 대한 사용권한 체크 */
-                .antMatchers("/api/**").permitAll()
+                .authorizeRequests()
+                .anyRequest().authenticated()
                 .and()
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .csrf()
+                .disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         // TODO: http Basic for prometheus
         //                 .antMatchers("/actuator/**").hasRole("ROLE_ADMIN")
-
-        http
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         return http.build();
     }
