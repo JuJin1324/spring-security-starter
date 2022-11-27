@@ -1,4 +1,4 @@
-package starter.springsecurity.web.provider;
+package starter.springsecurity.domain.token;
 
 import io.jsonwebtoken.*;
 import lombok.AccessLevel;

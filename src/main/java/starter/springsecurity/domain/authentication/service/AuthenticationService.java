@@ -1,8 +1,6 @@
 package starter.springsecurity.domain.authentication.service;
 
 import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
-import starter.springsecurity.domain.authentication.dto.CodeAuthVerificationResult;
-import starter.springsecurity.domain.authentication.dto.PhoneAuthCreateDto;
 import starter.springsecurity.domain.entity.vo.PhoneNumber;
 
 import java.util.UUID;
@@ -12,9 +10,21 @@ import java.util.UUID;
  * Created Date : 2022/11/23
  */
 public interface AuthenticationService {
-    void createPhoneAuth(PhoneAuthCreateDto createDto);
+    /**
+     * 폰 인증 생성
+     *
+     * @return authId 생성한 인증 ID 반환
+     */
+    UUID createPhoneAuth(PhoneNumber phoneNumber);
 
-    CodeAuthVerificationResult verifyPhoneAuth(PhoneNumber phoneNumber, String verificationCode);
+    /**
+     * 폰 인증 검증
+     */
+    void verifyPhoneAuth(UUID authId, String verificationCode);
 
-    AuthTokenReadDto getAuthToken(UUID authId);
+    /**
+     * 인증 토큰 생성
+     *
+     */
+    AuthTokenReadDto createAuthToken(UUID authId);
 }

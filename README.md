@@ -49,16 +49,17 @@
 > URI: `POST /authentications/phone`  
 > Request body: `{"countryCode": "82", "phoneNo": "01012341234"}`  
 > Response status: `201 Created`   
+> Response body: `{"authId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}"`
 
 ### 전화번호 인증 검증
 > URI: `POST /authentications/phone`  
 > Request param: `verify=true`  
-> Request body: `{"countryCode": "82", "phoneNo": "01012341234", "verificationCode": "123456"}`
-> Response body: `{"authId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "userId": "optional"}`  
+> Request body: `{"authId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "verificationCode": "123456"}`
+> Response body: `{"registrationToken": "{jwt}"}`  
 
 ### 인증 토큰 조회
 > URI: `GET /authentications/token`
-> Request param: `authId=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`
+> Request Header: `authorization=bearer {registration token}`
 > Response body: `{"accessToken": "", "refreshToken": ""}`
 
 ### User

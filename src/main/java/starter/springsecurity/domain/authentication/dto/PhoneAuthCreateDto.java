@@ -2,8 +2,8 @@ package starter.springsecurity.domain.authentication.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
+import starter.springsecurity.domain.entity.vo.PhoneNumber;
 
 import javax.validation.constraints.NotBlank;
 
@@ -14,10 +14,13 @@ import javax.validation.constraints.NotBlank;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-@Getter
 public class PhoneAuthCreateDto {
     @NotBlank
     private String countryCode;
     @NotBlank
     private String phoneNo;
+
+    public PhoneNumber getPhoneNumber() {
+        return new PhoneNumber(this.countryCode, this.phoneNo);
+    }
 }

@@ -9,10 +9,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
-import starter.springsecurity.domain.authentication.dto.CodeAuthVerificationResult;
 import starter.springsecurity.domain.authentication.dto.PhoneAuthCreateDto;
 import starter.springsecurity.domain.authentication.service.AuthenticationService;
-import starter.springsecurity.domain.entity.vo.PhoneNumber;
+import starter.springsecurity.domain.token.registration.RegistrationTokenService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -27,38 +26,44 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/authentication")
 public class AuthenticationController {
-    private final AuthenticationService authenticationService;
+    private final AuthenticationService    authenticationService;
+    private final RegistrationTokenService registrationTokenService;
 
     /**
      * 전화번호 인증 생성
      */
     @PostMapping("/phone")
     @ResponseStatus(HttpStatus.CREATED)
-    public void createPhoneAuth(@RequestBody @Valid PhoneAuthCreateDto createDto) {
-        authenticationService.createPhoneAuth(createDto);
+    public CreatePhoneAuthResponse createPhoneAuth(@RequestBody @Valid PhoneAuthCreateDto createDto) {
+        UUID authId = authenticationService.createPhoneAuth(createDto.getPhoneNumber());
+        return new CreatePhoneAuthResponse(authId);
     }
 
     /**
      * 전화번호 인증 검증
      */
     @PostMapping(value = "/phone", params = "verify=true")
-    public ResponseEntity<CodeAuthVerificationResult> verifyPhoneAuth(
+    public ResponseEntity<String> verifyPhoneAuth(
             @RequestBody @Valid VerifyPhoneAuthRequest request) {
 
-        CodeAuthVerificationResult result = authenticationService.verifyPhoneAuth(
-                request.getPhoneNumber(), request.getVerificationCode());
+        UUID authId = request.getAuthId();
+        String verificationCode = request.getVerificationCode();
+
+        authenticationService.verifyPhoneAuth(authId, verificationCode);
+        String registrationToken = registrationTokenService.createRegistrationToken(authId);
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache())
-                .body(result);
+                .body(registrationToken);
     }
 
     /**
      * 인증 토큰 조회
      */
     @GetMapping("/token")
-    public ResponseEntity<AuthTokenReadDto> getAuthToken(@RequestParam("authId") UUID authId) {
-        AuthTokenReadDto readDto = authenticationService.getAuthToken(authId);
+    public ResponseEntity<AuthTokenReadDto> getAuthToken() {
+        UUID authId = null; /* TODO: SpringSecurity 에서 구현해서 securityContext 받아오기 */
+        AuthTokenReadDto readDto = authenticationService.createAuthToken(authId);
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache())
@@ -67,17 +72,17 @@ public class AuthenticationController {
 
     @NoArgsConstructor
     @AllArgsConstructor
+    @Getter
     static class VerifyPhoneAuthRequest {
         @NotBlank
-        private String countryCode;
+        private UUID   authId;
         @NotBlank
-        private String phoneNo;
-        @NotBlank
-        @Getter
         private String verificationCode;
+    }
 
-        public PhoneNumber getPhoneNumber() {
-            return new PhoneNumber(countryCode, phoneNo);
-        }
+    @AllArgsConstructor
+    @Getter
+    static class CreatePhoneAuthResponse {
+        private UUID authId;
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
 import starter.springsecurity.domain.entity.vo.PhoneNumber;
-import starter.springsecurity.web.provider.JwtTokenProvider;
+import starter.springsecurity.domain.token.JwtTokenProvider;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
