@@ -7,8 +7,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
 import starter.springsecurity.domain.authentication.dto.PhoneAuthCreateDto;
+import starter.springsecurity.domain.authentication.repository.PhoneAuthRepository;
 import starter.springsecurity.domain.authentication.service.AuthenticationService;
+import starter.springsecurity.domain.entity.vo.PhoneNumber;
+import starter.springsecurity.domain.token.auth.AuthTokenService;
 import starter.springsecurity.domain.token.registration.RegistrationTokenService;
+import starter.springsecurity.domain.user.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -25,7 +29,12 @@ import java.util.UUID;
 @RequestMapping("/authentication")
 public class AuthenticationController {
     private final AuthenticationService    authenticationService;
+    private final UserService              userService;
     private final RegistrationTokenService registrationTokenService;
+    private final AuthTokenService         authTokenService;
+
+    // TODO: 제거
+    private final PhoneAuthRepository phoneAuthRepository;
 
     /**
      * 전화번호 인증 생성
@@ -60,12 +69,16 @@ public class AuthenticationController {
      */
     @GetMapping("/token")
     public ResponseEntity<AuthTokenReadDto> getAuthToken() {
-        UUID authId = null; /* TODO: SpringSecurity 에서 구현해서 securityContext 받아오기 */
-        AuthTokenReadDto readDto = authenticationService.createAuthToken(authId);
+        /* TODO: SpringSecurity 에서 구현해서 securityContext 받아오기 */
+        UUID authId = phoneAuthRepository.findByPhoneNumber(new PhoneNumber("82", "01012341234"))
+                .orElseThrow().getUuid();
+        UUID userId = userService.getUserId(authId);
+
+        AuthTokenReadDto authToken = authTokenService.createAuthToken(userId);
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache())
-                .body(readDto);
+                .body(authToken);
     }
 
     @NoArgsConstructor

@@ -19,9 +19,9 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class DefaultRegistrationTokenService implements RegistrationTokenService {
-    private static final String subject             = "RegistrationToken";
-    private static final long   tokenValidMinutes   = 3L;
-    private static final String PAYLOAD_AUTH_ID_KEY = "authId";
+    private static final String REGISTRATION_TOKEN_SUBJECT = "RegistrationToken";
+    private static final long   TOKEN_VALID_MINUTES        = 3L;
+    private static final String PAYLOAD_AUTH_ID_KEY        = "authId";
 
     @Value("${token.registration.secretkey}")
     private String secretKey;
@@ -38,7 +38,7 @@ public class DefaultRegistrationTokenService implements RegistrationTokenService
         Map<String, Object> payload = new HashMap<>();
         payload.put(PAYLOAD_AUTH_ID_KEY, authId.toString());
 
-        return jwtTokenProvider.createToken(subject, payload, tokenValidMinutes);
+        return jwtTokenProvider.createToken(REGISTRATION_TOKEN_SUBJECT, payload, TOKEN_VALID_MINUTES);
     }
 
     @Override

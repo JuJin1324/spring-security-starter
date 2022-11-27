@@ -7,4 +7,4 @@ Content-Type: application/json
 }
 
 ### GetSingleUser
-GET http://localhost:8999/users/f25b53b9-f6c9-4ac7-bef5-1421d45f34aa
+GET http://localhost:8999/users/02473681-2b46-4fe1-ad17-7ca355ca88d2

@@ -51,11 +51,6 @@ public class DefaultAuthenticationService implements AuthenticationService {
         }
     }
 
-    @Override
-    public AuthTokenReadDto createAuthToken(UUID authId) {
-        return null;
-    }
-
     private String generateVerificationCode() {
         return String.format("%0" + DefaultAuthenticationService.VERIFICATION_CODE_DIGITS + "d",
                 RANDOM.nextInt((int) Math.pow(10, DefaultAuthenticationService.VERIFICATION_CODE_DIGITS)));

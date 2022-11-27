@@ -1,6 +1,5 @@
 package starter.springsecurity.domain.authentication.service;
 
-import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
 import starter.springsecurity.domain.entity.vo.PhoneNumber;
 
 import java.util.UUID;
@@ -21,10 +20,4 @@ public interface AuthenticationService {
      * 폰 인증 검증
      */
     void verifyPhoneAuth(UUID authId, String verificationCode);
-
-    /**
-     * 인증 토큰 생성
-     *
-     */
-    AuthTokenReadDto createAuthToken(UUID authId);
 }

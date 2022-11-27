@@ -20,6 +20,11 @@ public interface UserService {
     UUID createUser(PhoneNumber phoneNumber, UserCreateDto createDto);
 
     /**
+     * 회원 ID 조회
+     */
+    UUID getUserId(UUID authId);
+
+    /**
      * 회원 단건 조회
      */
     UserReadDto getSingleUser(UUID userId);

@@ -6,10 +6,10 @@ import org.springframework.transaction.annotation.Transactional;
 import starter.springsecurity.domain.entity.vo.PhoneNumber;
 import starter.springsecurity.domain.user.dto.UserCreateDto;
 import starter.springsecurity.domain.user.dto.UserReadDto;
-import starter.springsecurity.domain.user.model.User;
-import starter.springsecurity.domain.user.repository.UserRepository;
 import starter.springsecurity.domain.user.exception.UserAlreadyExistException;
 import starter.springsecurity.domain.user.exception.UserNotFoundException;
+import starter.springsecurity.domain.user.model.User;
+import starter.springsecurity.domain.user.repository.UserRepository;
 import starter.springsecurity.domain.user.service.UserService;
 
 import java.util.UUID;
@@ -32,6 +32,13 @@ public class DefaultUserService implements UserService {
             throw new UserAlreadyExistException();
         }
         User user = userRepository.save(new User(phoneNumber, createDto.getNickname()));
+        return user.getUuid();
+    }
+
+    @Override
+    public UUID getUserId(UUID authId) {
+        User user = userRepository.findByAuthId(authId)
+                .orElseThrow(UserNotFoundException::new);
         return user.getUuid();
     }
 
