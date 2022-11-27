@@ -69,7 +69,7 @@
 ###  회원 생성
 > URI: `POST /users`  
 > Request body: `{"nickname": "닉네임"}`  
-> Request header: `Authorization: xxxxxxxxxxxxxxxxxxxxxxxxxxx(authId)`    
+> Request header: `Authorization: {registration token}`    
 > Response status: `201 Created`  
 > Response body: `{"userId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}`  
 

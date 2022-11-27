@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import starter.springsecurity.domain.entity.vo.PhoneNumber;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)
@@ -19,7 +20,11 @@ import javax.persistence.*;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Getter(AccessLevel.PROTECTED)
     private Long id;
+
+    @Column(name = "uuid")
+    private UUID uuid;
 
     @Embedded
     private PhoneNumber phoneNumber;
@@ -28,9 +33,8 @@ public class User {
     private String nickname;
 
     public User(PhoneNumber phoneNumber, String nickname) {
+        this.uuid = UUID.randomUUID();
         this.phoneNumber = phoneNumber;
         this.nickname = nickname;
     }
-
-
 }

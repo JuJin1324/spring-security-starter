@@ -7,6 +7,7 @@ import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
 import starter.springsecurity.domain.authentication.model.PhoneAuth;
 import starter.springsecurity.domain.authentication.repository.PhoneAuthRepository;
 import starter.springsecurity.domain.authentication.service.AuthenticationService;
+import starter.springsecurity.domain.authentication.exception.PhoneAuthNotFoundException;
 import starter.springsecurity.domain.entity.vo.PhoneNumber;
 
 import java.util.Random;
@@ -37,9 +38,10 @@ public class DefaultAuthenticationService implements AuthenticationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void verifyPhoneAuth(UUID authId, String verificationCode) {
         PhoneAuth phoneAuth = phoneAuthRepository.findByUuid(authId)
-                .orElseThrow();
+                .orElseThrow(PhoneAuthNotFoundException::new);
 
         if (!phoneAuth.verifyExpirationTime()) {
             throw new RuntimeException("PhoneAuth has expired.");

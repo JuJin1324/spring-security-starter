@@ -1,0 +1,10 @@
+### CreateUser
+POST http://localhost:8999/users
+Content-Type: application/json
+
+{
+  "nickname": "test nickname"
+}
+
+### GetSingleUser
+GET http://localhost:8999/users/f25b53b9-f6c9-4ac7-bef5-1421d45f34aa

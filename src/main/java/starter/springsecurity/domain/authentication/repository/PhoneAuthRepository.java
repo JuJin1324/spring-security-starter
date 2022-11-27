@@ -14,8 +14,8 @@ import java.util.UUID;
  * Created by Yoo Ju Jin(jujin1324@daum.net)
  * Created Date : 2022/11/27
  */
-//public interface PhoneAuthRepository extends CommonRepository<PhoneAuth, Long> {
-public interface PhoneAuthRepository extends JpaRepository<PhoneAuth, Long> {
+public interface PhoneAuthRepository extends CommonRepository<PhoneAuth, Long> {
+//public interface PhoneAuthRepository extends JpaRepository<PhoneAuth, Long> {
 
     @Query("select pa from PhoneAuth pa where pa.phoneNumber = :phoneNumber")
     Optional<PhoneAuth> findByPhoneNumber(@Param("phoneNumber") PhoneNumber phoneNumber);
