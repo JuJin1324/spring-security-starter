@@ -1,3 +1,9 @@
+buildscript {
+    ext {
+        testcontainerVersion = '1.17.3'
+    }
+}
+
 plugins {
     id 'org.springframework.boot' version '2.7.5'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
@@ -25,12 +31,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'mysql:mysql-connector-java:8.0.31'
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation "org.testcontainers:testcontainers:${testcontainerVersion}"
+    testImplementation "org.testcontainers:mysql:${testcontainerVersion}"
+    testImplementation 'mysql:mysql-connector-java:8.0.31'
+    testImplementation "org.testcontainers:junit-jupiter:${testcontainerVersion}"
 }
 
 tasks.named('test') {
