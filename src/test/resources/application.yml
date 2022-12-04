@@ -18,6 +18,11 @@ spring:
                     batch_size: 1000
         database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
 
+decorator:
+    datasource:
+        p6spy:
+            enable-logging: true
+
 logging:
     level:
         root: info

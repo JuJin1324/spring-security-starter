@@ -1,6 +1,7 @@
 package starter.springsecurity.domain.authentication.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import starter.springsecurity.domain.authentication.model.PhoneAuth;
@@ -23,4 +24,7 @@ public interface PhoneAuthRepository extends CommonRepository<PhoneAuth, Long> {
     Optional<PhoneAuth> findByUuid(UUID uuid);
 
     <S extends PhoneAuth> S save(S entity);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    void deleteAll();
 }

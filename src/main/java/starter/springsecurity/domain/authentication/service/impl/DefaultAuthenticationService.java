@@ -52,6 +52,7 @@ public class DefaultAuthenticationService implements AuthenticationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PhoneNumber getAuthenticatedPhoneNumber(UUID authId) {
         PhoneAuth phoneAuth = phoneAuthRepository.findByUuid(authId)
                 .orElseThrow(PhoneAuthNotFoundException::new);

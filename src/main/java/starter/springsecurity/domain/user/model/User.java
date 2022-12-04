@@ -23,7 +23,7 @@ public class User {
     @Getter(AccessLevel.PROTECTED)
     private Long id;
 
-    @Column(name = "uuid")
+    @Column(name = "uuid", updatable = false)
     private UUID uuid;
 
     @Embedded

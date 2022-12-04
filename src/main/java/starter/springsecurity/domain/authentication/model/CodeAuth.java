@@ -25,7 +25,7 @@ public abstract class CodeAuth extends BaseTimeEntity {
     @Getter(AccessLevel.PROTECTED)
     private Long id;
 
-    @Column(name = "uuid")
+    @Column(name = "uuid", columnDefinition = "BINARY(16)", updatable = false)
     private UUID uuid;
 
     @Column(name = "verification_code")
@@ -33,9 +33,11 @@ public abstract class CodeAuth extends BaseTimeEntity {
 
     @Column(name = "authenticated_yn", length = 1)
     @Convert(converter = BooleanConverter.class)
+    @Getter(AccessLevel.PROTECTED)
     private Boolean authenticated;
 
     @Column(name = "expiration_time")
+    @Getter(AccessLevel.PROTECTED)
     private LocalDateTime expirationTimeUTC;
 
     protected CodeAuth() {

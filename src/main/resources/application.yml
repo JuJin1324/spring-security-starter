@@ -15,11 +15,15 @@ spring:
         properties:
             hibernate:
                 format_sql: true
-                use_sql_comments: true
                 jdbc:
                     time_zone: UTC
                     batch_size: 1000
         database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+
+decorator:
+    datasource:
+        p6spy:
+            enable-logging: true
 
 token:
     registration:

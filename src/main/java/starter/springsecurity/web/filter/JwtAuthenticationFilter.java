@@ -1,22 +1,22 @@
 package starter.springsecurity.web.filter;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import starter.springsecurity.domain.token.auth.AuthTokenService;
-import starter.springsecurity.domain.token.registration.RegistrationTokenService;
+import starter.springsecurity.domain.token.auth.model.TokenType;
+import starter.springsecurity.domain.token.auth.service.AuthTokenService;
+import starter.springsecurity.domain.token.registration.service.RegistrationTokenService;
+import starter.springsecurity.web.exception.InvalidJsonWebTokenException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -27,9 +27,12 @@ import java.util.UUID;
  * Created Date : 2022/10/24
  */
 
+@Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private static final String CREATE_USER_URI = "/users";
+    private static final String GET_AUTH_TOKEN_URI = "/authentication/token";
+
     private static final String TOKEN_PREFIX    = "Bearer ";
 
     private final RegistrationTokenService registrationTokenService;
@@ -40,12 +43,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = getJwtFromRequest(request);
 
         Authentication authentication;
-        if (isCreateUser(request)) {
+        if (hasRegistrationToken(request)) {
             UUID authId = registrationTokenService.getAuthId(token);
-            authentication = new UsernamePasswordAuthenticationToken(authId, null);
+            authentication = new UsernamePasswordAuthenticationToken(authId, null, null);
+            log.debug("Request has registration token, authId: {}", authId);
+        } else if (hasRefreshToken(request)) {
+            UUID userId = authTokenService.getUserId(token, TokenType.REFRESH);
+            authentication = new UsernamePasswordAuthenticationToken(userId, null, null);
+            log.debug("Request has refresh token, userId: {}", userId);
         } else {
-            UUID userId = authTokenService.getUserId(token);
-            authentication = new UsernamePasswordAuthenticationToken(userId, null);
+            UUID userId = authTokenService.getUserId(token, TokenType.ACCESS);
+            // TODO: authorities 에 ROLE_USER 넣기
+            authentication = new UsernamePasswordAuthenticationToken(userId, null, null);
+            log.debug("Request has access token, userId: {}", userId);
         }
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -64,8 +74,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return jwt;
     }
 
-    private boolean isCreateUser(HttpServletRequest request) {
+    private boolean hasRegistrationToken(HttpServletRequest request) {
+        return isCreateUserRequest(request) || isGetAuthTokenRequest(request);
+    }
+
+    private boolean hasRefreshToken(HttpServletRequest request) {
+        return isGetUpdatedAuthTokenRequest(request);
+    }
+
+    private boolean isCreateUserRequest(HttpServletRequest request) {
         return request.getMethod().equalsIgnoreCase(HttpMethod.POST.name())
                 && request.getRequestURI().equals(CREATE_USER_URI);
+    }
+
+    private boolean isGetAuthTokenRequest(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase(HttpMethod.GET.name())
+                && request.getRequestURI().equals(GET_AUTH_TOKEN_URI)
+                && ObjectUtils.isEmpty(request.getParameter("updated"));
+    }
+
+    private boolean isGetUpdatedAuthTokenRequest(HttpServletRequest request) {
+        return request.getMethod().equalsIgnoreCase(HttpMethod.GET.name())
+                && request.getRequestURI().equals(GET_AUTH_TOKEN_URI)
+                && StringUtils.hasText(request.getParameter("updated"));
     }
 }

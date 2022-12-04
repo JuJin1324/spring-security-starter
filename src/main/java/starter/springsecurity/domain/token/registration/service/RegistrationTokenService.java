@@ -1,4 +1,4 @@
-package starter.springsecurity.domain.token.registration;
+package starter.springsecurity.domain.token.registration.service;
 
 import java.util.UUID;
 

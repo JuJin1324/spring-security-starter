@@ -1,12 +1,11 @@
-package starter.springsecurity.domain.token.registration.impl;
+package starter.springsecurity.domain.token.registration.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Service;
 import starter.springsecurity.domain.token.JwtTokenProvider;
-import starter.springsecurity.domain.token.registration.InvalidRegistrationTokenException;
-import starter.springsecurity.domain.token.registration.RegistrationTokenService;
+import starter.springsecurity.domain.token.registration.exception.InvalidRegistrationTokenException;
+import starter.springsecurity.domain.token.registration.service.RegistrationTokenService;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -21,8 +20,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class DefaultRegistrationTokenService implements RegistrationTokenService {
     private static final String REGISTRATION_TOKEN_SUBJECT = "RegistrationToken";
-    private static final long   TOKEN_VALID_MINUTES        = 3L;
-    private static final String PAYLOAD_AUTH_ID_KEY        = "authId";
+    private static final long   TOKEN_VALID_MINUTES = 3L;
+    private static final String CLAIMS_AUTH_ID_KEY  = "authId";
 
     @Value("${token.registration.secretkey}")
     private String secretKey;
@@ -36,18 +35,18 @@ public class DefaultRegistrationTokenService implements RegistrationTokenService
 
     @Override
     public String createRegistrationToken(UUID authId) {
-        Map<String, Object> payload = new HashMap<>();
-        payload.put(PAYLOAD_AUTH_ID_KEY, authId.toString());
+        Map<String, Object> claims = new HashMap<>();
+        claims.put(CLAIMS_AUTH_ID_KEY, authId.toString());
 
-        return jwtTokenProvider.createToken(REGISTRATION_TOKEN_SUBJECT, payload, TOKEN_VALID_MINUTES);
+        return jwtTokenProvider.createToken(REGISTRATION_TOKEN_SUBJECT, claims, TOKEN_VALID_MINUTES);
     }
 
     @Override
     public UUID getAuthId(String registrationToken) {
         validateRegistrationToken(registrationToken);
-
-        Map<String, Object> payload = jwtTokenProvider.getPayload(registrationToken);
-        return (UUID) payload.get(PAYLOAD_AUTH_ID_KEY);
+        
+        Map<String, Object> claims = jwtTokenProvider.getClaims(registrationToken);
+        return UUID.fromString((String) claims.get(CLAIMS_AUTH_ID_KEY));
     }
 
     private void validateRegistrationToken(String registrationToken) {

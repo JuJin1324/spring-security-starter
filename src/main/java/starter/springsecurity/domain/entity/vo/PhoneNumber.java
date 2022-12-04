@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.Transient;
 
 /**
  * Created by Yoo Ju Jin(jujin@100fac.com)
@@ -18,6 +19,7 @@ import javax.persistence.Embeddable;
 @ToString
 @EqualsAndHashCode
 public class PhoneNumber {
+    @Transient
     public static final int VALID_NUMBER_LENGTH = 11;
 
     @Column(name = "country_code")

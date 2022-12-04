@@ -1,14 +1,10 @@
 package starter.springsecurity.domain.token;
 
 import io.jsonwebtoken.*;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,27 +25,41 @@ public class JwtTokenProvider {
     /**
      * 토큰 생성
      */
-    public String createToken(String subject, Map<String, Object> payload, long tokensValidMinutes) {
+    public String createToken(String subject, Map<String, Object> claims, long tokensValidMinutes) {
         Map<String, Object> headers = new HashMap<>();
         headers.put("alg", "HS256");
         headers.put("typ", "JWT");
 
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expirationTime = now.plusMinutes(tokensValidMinutes);
+
+        System.out.println("timestamp: " + Timestamp.from(now.toInstant(ZoneOffset.UTC)));
+
         return Jwts.builder()
                 .setHeader(headers)
                 .setSubject(subject)
-                .setClaims(payload)
-                .setIssuedAt(Timestamp.valueOf(now))
+                .addClaims(claims)
+                .setIssuedAt(Timestamp.from(now.toInstant(ZoneOffset.UTC)))
                 .setExpiration(Timestamp.valueOf(expirationTime))
                 .signWith(SignatureAlgorithm.HS256, secretKeyBase64)
                 .compact();
     }
 
     /**
-     * 페이로드 조회
+     * Subject 조회
      */
-    public Map<String, Object> getPayload(String token) throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
+    public String getSubject(String token) throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
+        return Jwts.parser()
+                .setSigningKey(secretKeyBase64) // Set Key
+                .parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러
+                .getBody()
+                .getSubject();
+    }
+
+    /**
+     * Claims 조회
+     */
+    public Map<String, Object> getClaims(String token) throws ExpiredJwtException, UnsupportedJwtException, MalformedJwtException, SignatureException, IllegalArgumentException {
         return Jwts.parser()
                 .setSigningKey(secretKeyBase64) // Set Key
                 .parseClaimsJws(token) // 파싱 및 검증, 실패 시 에러

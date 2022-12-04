@@ -36,6 +36,25 @@
 ### 참조사이트
 > [크로스 사이트 요청 위조란?](https://nordvpn.com/ko/blog/csrf/)
 
+## JWT authentication filter
+### JwtAuthenticationFilter
+> `회원 생성 API` 와 `인증 토큰 조회 API` 는 `Registration token` 을 통해서 인증한다.   
+> 그 외 API 는 `Access token` 을 통해서 인증한다.  
+> `UsernamePasswordAuthenticationToken` 생성 시 2개의 생성자를 통해서 인증 정보를 생성할 수 있다.  
+> 1.UsernamePasswordAuthenticationToken(Object principal, Object credentials): 생성자 내부를 보면 인증되지 않은 인증 정보를 생성한다.  
+> 2.UsernamePasswordAuthenticationToken(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities): 
+> 인증된 인증 정보를 생성한다. 즉 JWT 인증이 통과한 후 인증 정보를 생성하기 위해서는 매개변수가 3개인 생성자로 인증 정보를 생성해야한다.  
+
+### UnauthorizedExceptionFilter
+> `JwtAuthenticationFilter` 에서 인증에 실패하여 UnauthorizedException 이 발생한 경우 예외를 Response 에 담아서 반환한다.    
+> Filter 의 호출 규칙에 따라서 `JwtAuthenticationFilter` 앞에 호출되도록 한다.  
+> ```java
+> ...
+> .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+> .addFilterBefore(unauthorizedExceptionFilter, JwtAuthenticationFilter.class)
+> ...
+> ```
+
 ## JWT 로 접근 인증하는 도메인
 > 1.전화번호 인증 생성 -> 2.전화번호 인증 검증(verificationCode 는 DB에서 직접 조회해서 찾는다.) 
 > -> 3.회원 생성(이미 생성한 회원이면 건너뛴다.) -> 4.인증 토큰 조회 -> 5.회원 단건 조회
