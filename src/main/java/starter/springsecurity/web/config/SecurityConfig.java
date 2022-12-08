@@ -6,12 +6,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import starter.springsecurity.domain.token.auth.service.AuthTokenService;
-import starter.springsecurity.domain.token.registration.service.RegistrationTokenService;
 import starter.springsecurity.web.filter.JwtAuthenticationFilter;
 import starter.springsecurity.web.filter.UnauthorizedExceptionFilter;
 
@@ -24,22 +21,15 @@ import starter.springsecurity.web.filter.UnauthorizedExceptionFilter;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final RegistrationTokenService registrationTokenService;
-    private final AuthTokenService         authTokenService;
-
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().antMatchers(
-                "/authentication/phone/**");
-    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(registrationTokenService, authTokenService);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter();
         UnauthorizedExceptionFilter unauthorizedExceptionFilter = new UnauthorizedExceptionFilter(objectMapper());
 
         http
                 .authorizeRequests()
+                .antMatchers("/authentication/phone/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
@@ -47,11 +37,17 @@ public class SecurityConfig {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        // TODO: http Basic for prometheus
-        //                 .antMatchers("/actuator/**").hasRole("ROLE_ADMIN")
-
         return http.build();
     }
+
+//    @Bean
+//    public SecurityFilterChain monitoringFilterChain(HttpSecurity http) throws Exception {
+//        return http
+//                .authorizeRequests()
+//                .antMatchers("/actuator/**").hasRole("ROLE_ADMIN")
+//                .and()
+//                .build();
+//    }
 
     @Bean
     public ObjectMapper objectMapper() {

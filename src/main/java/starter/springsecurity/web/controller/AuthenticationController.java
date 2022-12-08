@@ -8,11 +8,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
 import starter.springsecurity.domain.authentication.dto.PhoneAuthCreateDto;
-import starter.springsecurity.domain.authentication.repository.PhoneAuthRepository;
 import starter.springsecurity.domain.authentication.service.AuthenticationService;
 import starter.springsecurity.domain.token.auth.service.AuthTokenService;
 import starter.springsecurity.domain.token.registration.service.RegistrationTokenService;
 import starter.springsecurity.domain.user.service.UserService;
+import starter.springsecurity.web.filter.JwtAuthenticationToken;
+import starter.springsecurity.web.resolver.argument.Authenticated;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -65,8 +66,7 @@ public class AuthenticationController {
      * 인증 토큰 조회
      */
     @GetMapping("/token")
-    public ResponseEntity<AuthTokenReadDto> getAuthToken(Authentication authentication) {
-        UUID authId = (UUID) authentication.getPrincipal();
+    public ResponseEntity<AuthTokenReadDto> getAuthToken(@Authenticated UUID authId) {
         UUID userId = userService.getUserId(authId);
 
         AuthTokenReadDto authToken = authTokenService.createAuthToken(userId);
@@ -80,9 +80,7 @@ public class AuthenticationController {
      * 업데이트된 인증 토큰 조회
      */
     @GetMapping(value = "/token", params = "updated=true")
-    public ResponseEntity<AuthTokenReadDto> getUpdatedAuthToken(Authentication authentication) {
-        UUID userId = (UUID) authentication.getPrincipal();
-
+    public ResponseEntity<AuthTokenReadDto> getUpdatedAuthToken(@Authenticated UUID userId) {
         AuthTokenReadDto authToken = authTokenService.getRefreshedAuthToken(userId);
 
         return ResponseEntity.ok()

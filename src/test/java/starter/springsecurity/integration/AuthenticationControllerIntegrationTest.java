@@ -12,14 +12,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.transaction.annotation.Transactional;
 import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
 import starter.springsecurity.domain.authentication.dto.PhoneAuthCreateDto;
 import starter.springsecurity.domain.authentication.model.PhoneAuth;
 import starter.springsecurity.domain.authentication.repository.PhoneAuthRepository;
 import starter.springsecurity.domain.authentication.service.AuthenticationService;
 import starter.springsecurity.domain.entity.vo.PhoneNumber;
-import starter.springsecurity.domain.token.auth.model.RefreshToken;
 import starter.springsecurity.domain.token.auth.model.TokenType;
 import starter.springsecurity.domain.token.auth.repository.RefreshTokenRepository;
 import starter.springsecurity.domain.token.auth.service.AuthTokenService;
@@ -31,7 +29,6 @@ import starter.springsecurity.web.controller.AuthenticationController.CreatePhon
 import starter.springsecurity.web.controller.AuthenticationController.VerifyPhoneAuthRequest;
 import starter.springsecurity.web.controller.AuthenticationController.VerifyPhoneAuthResponse;
 
-import java.time.LocalDateTime;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -49,18 +46,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 class AuthenticationControllerIntegrationTest {
-    static final String CREATE_PHONE_AUTH_URI = "/authentication/phone";
-    static final String VERIFY_PHONE_AUTH_URI = "/authentication/phone?verify=true";
-    static final String GET_AUTH_TOKEN_URI    = "/authentication/token";
-    static final String GET_UPDATED_AUTH_TOKEN_URI    = "/authentication/token?updated=true";
+    static final String CREATE_PHONE_AUTH_URI      = "/authentication/phone";
+    static final String VERIFY_PHONE_AUTH_URI      = "/authentication/phone?verify=true";
+    static final String GET_AUTH_TOKEN_URI         = "/authentication/token";
+    static final String GET_UPDATED_AUTH_TOKEN_URI = "/authentication/token?updated=true";
 
     static final String COUNTRY_CODE = "82";
     static final String PHONE_NO     = "01012344321";
 
     @Autowired
-    PhoneAuthRepository phoneAuthRepository;
+    PhoneAuthRepository    phoneAuthRepository;
     @Autowired
-    UserRepository userRepository;
+    UserRepository         userRepository;
     @Autowired
     RefreshTokenRepository refreshTokenRepository;
 

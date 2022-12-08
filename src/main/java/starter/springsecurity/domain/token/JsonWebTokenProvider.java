@@ -15,10 +15,10 @@ import java.util.Map;
  * Created Date : 2022/10/24
  */
 
-public class JwtTokenProvider {
+public class JsonWebTokenProvider {
     private final String secretKeyBase64;
 
-    public JwtTokenProvider(String secretKey) {
+    public JsonWebTokenProvider(String secretKey) {
         this.secretKeyBase64 = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 

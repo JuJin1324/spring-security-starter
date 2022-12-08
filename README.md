@@ -21,6 +21,27 @@
 > ...
 > ```
 
+## Spring security authentication
+### 동작 구성
+> 1.AuthenticationFilter
+> client 에서 request 로 받은 username 과 password 를 AuthenticationToken 객체에 담은 뒤 `SecurityContextHolder.getContext().setAuthentication(authentication);`
+> 를 통해서 AuthenticationProvider 로 전달한다.   
+> 주의할 점은 AuthenticationFilter 에서 예외를 발생시키지 않는다는 것이다. 예외를 발생시킬 시 SecurityConfig 에서 설정한 .permitAll() 과 같이 
+> 인가 설정이 걸린 URI 들이 정상 동작하지 않을 수 있다.
+> 
+> 2.AuthenticationProvider 에서 securityContext 로 전달받은 AuthenticationToken 객체를 검증 후 인증 처리를 진행한다.
+
+### UsernamePasswordAuthenticationToken 주의 사항
+> `UsernamePasswordAuthenticationToken` 생성 시 2개의 생성자를 통해서 인증 정보를 생성할 수 있다.  
+> 1.UsernamePasswordAuthenticationToken(Object principal, Object credentials): 생성자 내부를 보면 인증되지 않은 인증 정보를 생성한다.  
+> 2.UsernamePasswordAuthenticationToken(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities):
+
+## Error Debugging Point
+> Spring security 에러 시 디버깅해봐야할 포인트   
+
+### ExceptionTranslationFilter
+> `doFilter` 메서드에서 `catch (Exception ex) {` 아래 부분에 브레이크 포인트를 둔 후 디버깅한다.  
+
 ## Deprecated
 ### WebSecurityConfigurerAdapter
 > 기존 SecurityConfig 클래스에 WebSecurityConfigurerAdapter 클래스를 상속받아서 사용하던 것에서 상속을 제거 후 
@@ -39,11 +60,7 @@
 ## JWT authentication filter
 ### JwtAuthenticationFilter
 > `회원 생성 API` 와 `인증 토큰 조회 API` 는 `Registration token` 을 통해서 인증한다.   
-> 그 외 API 는 `Access token` 을 통해서 인증한다.  
-> `UsernamePasswordAuthenticationToken` 생성 시 2개의 생성자를 통해서 인증 정보를 생성할 수 있다.  
-> 1.UsernamePasswordAuthenticationToken(Object principal, Object credentials): 생성자 내부를 보면 인증되지 않은 인증 정보를 생성한다.  
-> 2.UsernamePasswordAuthenticationToken(Object principal, Object credentials, Collection<? extends GrantedAuthority> authorities): 
-> 인증된 인증 정보를 생성한다. 즉 JWT 인증이 통과한 후 인증 정보를 생성하기 위해서는 매개변수가 3개인 생성자로 인증 정보를 생성해야한다.  
+> 그 외 API 는 `Access token` 을 통해서 인증한다.   
 
 ### UnauthorizedExceptionFilter
 > `JwtAuthenticationFilter` 에서 인증에 실패하여 UnauthorizedException 이 발생한 경우 예외를 Response 에 담아서 반환한다.    

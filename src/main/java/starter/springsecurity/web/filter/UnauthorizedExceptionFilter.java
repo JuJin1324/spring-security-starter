@@ -21,7 +21,6 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 public class UnauthorizedExceptionFilter extends OncePerRequestFilter {
-
     private final ObjectMapper objectMapper;
 
     @Override

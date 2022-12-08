@@ -5,5 +5,5 @@ package starter.springsecurity.domain.token.auth.model;
  * Created Date : 2022/12/05
  */
 public enum TokenType {
-    ACCESS, REFRESH
+    ACCESS, REFRESH, REGISTRATION, NONE,
 }

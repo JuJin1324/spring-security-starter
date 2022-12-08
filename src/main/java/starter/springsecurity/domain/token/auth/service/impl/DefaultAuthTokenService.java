@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
-import starter.springsecurity.domain.token.JwtTokenProvider;
+import starter.springsecurity.domain.token.JsonWebTokenProvider;
 import starter.springsecurity.domain.token.auth.exception.InvalidAccessTokenException;
 import starter.springsecurity.domain.token.auth.exception.InvalidRefreshTokenException;
 import starter.springsecurity.domain.token.auth.exception.RefreshTokenNotFoundException;
@@ -37,11 +37,11 @@ public class DefaultAuthTokenService implements AuthTokenService {
     @Value("${token.auth.secretkey}")
     private String secretKey;
 
-    private JwtTokenProvider jwtTokenProvider;
+    private JsonWebTokenProvider jsonWebTokenProvider;
 
     @PostConstruct
     private void postConstruct() {
-        this.jwtTokenProvider = new JwtTokenProvider(secretKey);
+        this.jsonWebTokenProvider = new JsonWebTokenProvider(secretKey);
     }
 
     @Override
@@ -81,7 +81,7 @@ public class DefaultAuthTokenService implements AuthTokenService {
     public boolean isUserIdMatchedWithToken(String accessToken, UUID userId) {
         validateAccessToken(accessToken);
 
-        Map<String, Object> claims = jwtTokenProvider.getClaims(accessToken);
+        Map<String, Object> claims = jsonWebTokenProvider.getClaims(accessToken);
         String foundUserId = (String) claims.get(CLAIMS_USER_ID_KEY);
 
         return userId.equals(UUID.fromString(foundUserId));
@@ -96,7 +96,7 @@ public class DefaultAuthTokenService implements AuthTokenService {
             validateRefreshToken(token);
         }
 
-        Map<String, Object> claims = jwtTokenProvider.getClaims(token);
+        Map<String, Object> claims = jsonWebTokenProvider.getClaims(token);
         String foundUserId = (String) claims.get(CLAIMS_USER_ID_KEY);
 
         return UUID.fromString(foundUserId);
@@ -111,25 +111,25 @@ public class DefaultAuthTokenService implements AuthTokenService {
     }
 
     private AuthTokenReadDto generateAuthToken(Map<String, Object> claims) {
-        String accessToken = jwtTokenProvider.createToken(
+        String accessToken = jsonWebTokenProvider.createToken(
                 ACCESS_TOKEN_SUBJECT, claims, TOKEN_VALID_MINUTES);
-        String refreshToken = jwtTokenProvider.createToken(
+        String refreshToken = jsonWebTokenProvider.createToken(
                 REFRESH_TOKEN_SUBJECT, claims, TOKEN_VALID_MINUTES);
 
         return new AuthTokenReadDto(accessToken, refreshToken);
     }
 
     private void validateAccessToken(String accessToken) {
-        if (!jwtTokenProvider.validateToken(accessToken)) {
+        if (!jsonWebTokenProvider.validateToken(accessToken)) {
             throw new InvalidAccessTokenException("Token is invalid.");
         }
-        if (!jwtTokenProvider.getSubject(accessToken).equals(ACCESS_TOKEN_SUBJECT)) {
+        if (!jsonWebTokenProvider.getSubject(accessToken).equals(ACCESS_TOKEN_SUBJECT)) {
             throw new InvalidAccessTokenException("Subject is not right.");
         }
     }
 
     private void validateRefreshToken(String refreshToken) {
-        if (!jwtTokenProvider.validateToken(refreshToken)) {
+        if (!jsonWebTokenProvider.validateToken(refreshToken)) {
             throw new InvalidRefreshTokenException("Token is invalid.");
         }
 

@@ -1,18 +1,14 @@
 package starter.springsecurity.web.filter;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import starter.springsecurity.domain.token.auth.model.TokenType;
-import starter.springsecurity.domain.token.auth.service.AuthTokenService;
-import starter.springsecurity.domain.token.registration.service.RegistrationTokenService;
 import starter.springsecurity.web.exception.InvalidJsonWebTokenException;
 
 import javax.servlet.FilterChain;
@@ -20,7 +16,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.UUID;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)
@@ -28,35 +23,30 @@ import java.util.UUID;
  */
 
 @Slf4j
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-    private static final String CREATE_USER_URI = "/users";
+    private static final String CREATE_USER_URI    = "/users";
     private static final String GET_AUTH_TOKEN_URI = "/authentication/token";
 
-    private static final String TOKEN_PREFIX    = "Bearer ";
-
-    private final RegistrationTokenService registrationTokenService;
-    private final AuthTokenService         authTokenService;
+    private static final String TOKEN_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = getJwtFromRequest(request);
-
-        Authentication authentication;
-        if (hasRegistrationToken(request)) {
-            UUID authId = registrationTokenService.getAuthId(token);
-            authentication = new UsernamePasswordAuthenticationToken(authId, null, null);
-            log.debug("Request has registration token, authId: {}", authId);
+        String jsonWebToken;
+        TokenType tokenType;
+        if (hasNoToken(request)) {
+            jsonWebToken = null;
+            tokenType = TokenType.NONE;
+        } else if (hasRegistrationToken(request)) {
+            jsonWebToken = getJwtFromRequest(request);
+            tokenType = TokenType.REGISTRATION;
         } else if (hasRefreshToken(request)) {
-            UUID userId = authTokenService.getUserId(token, TokenType.REFRESH);
-            authentication = new UsernamePasswordAuthenticationToken(userId, null, null);
-            log.debug("Request has refresh token, userId: {}", userId);
+            jsonWebToken = getJwtFromRequest(request);
+            tokenType = TokenType.REFRESH;
         } else {
-            UUID userId = authTokenService.getUserId(token, TokenType.ACCESS);
-            // TODO: authorities 에 ROLE_USER 넣기
-            authentication = new UsernamePasswordAuthenticationToken(userId, null, null);
-            log.debug("Request has access token, userId: {}", userId);
+            jsonWebToken = getJwtFromRequest(request);
+            tokenType = TokenType.ACCESS;
         }
+        Authentication authentication = new JwtAuthenticationToken(jsonWebToken, tokenType);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
@@ -82,6 +72,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         return isGetUpdatedAuthTokenRequest(request);
     }
 
+    private boolean hasNoToken(HttpServletRequest request) {
+        return ObjectUtils.isEmpty(request.getHeader(HttpHeaders.AUTHORIZATION));
+    }
+
     private boolean isCreateUserRequest(HttpServletRequest request) {
         return request.getMethod().equalsIgnoreCase(HttpMethod.POST.name())
                 && request.getRequestURI().equals(CREATE_USER_URI);
@@ -98,4 +92,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 && request.getRequestURI().equals(GET_AUTH_TOKEN_URI)
                 && StringUtils.hasText(request.getParameter("updated"));
     }
+
+
 }
