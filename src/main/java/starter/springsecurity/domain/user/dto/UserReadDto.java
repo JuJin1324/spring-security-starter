@@ -14,6 +14,7 @@ import java.util.UUID;
  * Created Date : 2022/11/27
  */
 
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 public class UserReadDto {
     private UUID userId;

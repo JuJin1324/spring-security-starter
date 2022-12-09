@@ -29,4 +29,5 @@ token:
     registration:
         secretkey: RegistrationTokenSecretKey-local
     auth:
-        secretkey: AuthTokenSecretKey-local
+        access.secretkey: AccessTokenSecretKey-local
+        refresh.secretkey: RefreshTokenSecretKey-local

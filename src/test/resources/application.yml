@@ -36,4 +36,5 @@ token:
     registration:
         secretkey: RegistrationTokenSecretKey-test
     auth:
-        secretkey: AuthTokenSecretKey-test
+        access.secretkey: AccessTokenSecretKey-local
+        refresh.secretkey: RefreshTokenSecretKey-local

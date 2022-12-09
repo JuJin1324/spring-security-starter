@@ -38,7 +38,6 @@ public class DefaultAuthenticationService implements AuthenticationService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public void verifyPhoneAuth(UUID authId, String verificationCode) {
         PhoneAuth phoneAuth = phoneAuthRepository.findByUuid(authId)
                 .orElseThrow(PhoneAuthNotFoundException::new);
@@ -49,6 +48,7 @@ public class DefaultAuthenticationService implements AuthenticationService {
         if (!phoneAuth.verifyCode(verificationCode)) {
             throw new RuntimeException("Tried invalid verification code.");
         }
+        phoneAuth.passAuthentication();
     }
 
     @Override

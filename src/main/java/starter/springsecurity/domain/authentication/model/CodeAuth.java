@@ -64,7 +64,7 @@ public abstract class CodeAuth extends BaseTimeEntity {
         return this.verificationCode.equals(verificationCode);
     }
 
-    public void pass() {
+    public void passAuthentication() {
         this.authenticated = true;
         this.expirationTimeUTC = LocalDateTime.now().plusMinutes(30);
     }

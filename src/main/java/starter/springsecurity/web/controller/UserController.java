@@ -1,8 +1,7 @@
 package starter.springsecurity.web.controller;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import starter.springsecurity.domain.authentication.service.AuthenticationService;
@@ -10,6 +9,7 @@ import starter.springsecurity.domain.entity.vo.PhoneNumber;
 import starter.springsecurity.domain.user.dto.UserCreateDto;
 import starter.springsecurity.domain.user.dto.UserReadDto;
 import starter.springsecurity.domain.user.service.UserService;
+import starter.springsecurity.web.resolver.argument.Authenticated;
 
 import javax.validation.Valid;
 import java.util.UUID;
@@ -27,10 +27,9 @@ public class UserController {
     private final UserService           userService;
 
     @PostMapping("")
-    public CreateUserResponse createUser(Authentication authentication,
+    @ResponseStatus(HttpStatus.CREATED)
+    public CreateUserResponse createUser(@Authenticated UUID authId,
                                          @RequestBody @Valid UserCreateDto createDto) {
-        UUID authId = (UUID) authentication.getPrincipal();
-
         PhoneNumber phoneNumber = authenticationService.getAuthenticatedPhoneNumber(authId);
         UUID userId = userService.createUser(phoneNumber, createDto);
 
@@ -43,8 +42,9 @@ public class UserController {
     }
 
     @AllArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @Getter
-    static class CreateUserResponse {
+    public static class CreateUserResponse {
         private UUID userId;
     }
 }

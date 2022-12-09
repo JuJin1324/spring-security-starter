@@ -8,6 +8,7 @@ import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
 import starter.springsecurity.domain.token.JsonWebTokenProvider;
 import starter.springsecurity.domain.token.auth.exception.InvalidAccessTokenException;
 import starter.springsecurity.domain.token.auth.exception.InvalidRefreshTokenException;
+import starter.springsecurity.domain.token.auth.exception.NotSupportedTokenTypeException;
 import starter.springsecurity.domain.token.auth.exception.RefreshTokenNotFoundException;
 import starter.springsecurity.domain.token.auth.model.RefreshToken;
 import starter.springsecurity.domain.token.auth.model.TokenType;
@@ -29,19 +30,23 @@ import java.util.UUID;
 public class DefaultAuthTokenService implements AuthTokenService {
     private static final String ACCESS_TOKEN_SUBJECT  = "AccessToken";
     private static final String REFRESH_TOKEN_SUBJECT = "RefreshToken";
-    private static final long   TOKEN_VALID_MINUTES = 60L;
-    private static final String CLAIMS_USER_ID_KEY  = "userId";
+    private static final long   TOKEN_VALID_MINUTES   = 60L;
+    private static final String CLAIMS_USER_ID_KEY    = "userId";
 
     private final RefreshTokenRepository refreshTokenRepository;
 
-    @Value("${token.auth.secretkey}")
-    private String secretKey;
+    @Value("${token.auth.access.secretkey}")
+    private String accessTokenSecretKey;
+    @Value("${token.auth.refresh.secretkey}")
+    private String refreshTokenSecretKey;
 
-    private JsonWebTokenProvider jsonWebTokenProvider;
+    private JsonWebTokenProvider accessTokenProvider;
+    private JsonWebTokenProvider refreshTokenProvider;
 
     @PostConstruct
     private void postConstruct() {
-        this.jsonWebTokenProvider = new JsonWebTokenProvider(secretKey);
+        this.accessTokenProvider = new JsonWebTokenProvider(accessTokenSecretKey);
+        this.refreshTokenProvider = new JsonWebTokenProvider(refreshTokenSecretKey);
     }
 
     @Override
@@ -81,7 +86,7 @@ public class DefaultAuthTokenService implements AuthTokenService {
     public boolean isUserIdMatchedWithToken(String accessToken, UUID userId) {
         validateAccessToken(accessToken);
 
-        Map<String, Object> claims = jsonWebTokenProvider.getClaims(accessToken);
+        Map<String, Object> claims = accessTokenProvider.getClaims(accessToken);
         String foundUserId = (String) claims.get(CLAIMS_USER_ID_KEY);
 
         return userId.equals(UUID.fromString(foundUserId));
@@ -90,13 +95,19 @@ public class DefaultAuthTokenService implements AuthTokenService {
     @Override
     @Transactional(readOnly = true)
     public UUID getUserId(String token, TokenType tokenType) {
-        if (tokenType.equals(TokenType.ACCESS)) {
-            validateAccessToken(token);
-        } else {
-            validateRefreshToken(token);
+        Map<String, Object> claims;
+        switch (tokenType) {
+            case ACCESS:
+                validateAccessToken(token);
+                claims = accessTokenProvider.getClaims(token);
+                break;
+            case REFRESH:
+                validateRefreshToken(token);
+                claims = refreshTokenProvider.getClaims(token);
+                break;
+            default:
+                throw new NotSupportedTokenTypeException(tokenType);
         }
-
-        Map<String, Object> claims = jsonWebTokenProvider.getClaims(token);
         String foundUserId = (String) claims.get(CLAIMS_USER_ID_KEY);
 
         return UUID.fromString(foundUserId);
@@ -111,25 +122,22 @@ public class DefaultAuthTokenService implements AuthTokenService {
     }
 
     private AuthTokenReadDto generateAuthToken(Map<String, Object> claims) {
-        String accessToken = jsonWebTokenProvider.createToken(
+        String accessToken = accessTokenProvider.createToken(
                 ACCESS_TOKEN_SUBJECT, claims, TOKEN_VALID_MINUTES);
-        String refreshToken = jsonWebTokenProvider.createToken(
+        String refreshToken = refreshTokenProvider.createToken(
                 REFRESH_TOKEN_SUBJECT, claims, TOKEN_VALID_MINUTES);
 
         return new AuthTokenReadDto(accessToken, refreshToken);
     }
 
     private void validateAccessToken(String accessToken) {
-        if (!jsonWebTokenProvider.validateToken(accessToken)) {
+        if (!accessTokenProvider.validateToken(accessToken)) {
             throw new InvalidAccessTokenException("Token is invalid.");
-        }
-        if (!jsonWebTokenProvider.getSubject(accessToken).equals(ACCESS_TOKEN_SUBJECT)) {
-            throw new InvalidAccessTokenException("Subject is not right.");
         }
     }
 
     private void validateRefreshToken(String refreshToken) {
-        if (!jsonWebTokenProvider.validateToken(refreshToken)) {
+        if (!refreshTokenProvider.validateToken(refreshToken)) {
             throw new InvalidRefreshTokenException("Token is invalid.");
         }
 

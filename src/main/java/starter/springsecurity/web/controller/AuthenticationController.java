@@ -88,8 +88,8 @@ public class AuthenticationController {
                 .body(authToken);
     }
 
-    @NoArgsConstructor
     @AllArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @Setter
     @Getter
     public static class VerifyPhoneAuthRequest {
@@ -99,15 +99,15 @@ public class AuthenticationController {
         private String verificationCode;
     }
 
-    @NoArgsConstructor
     @AllArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @Getter
     public static class VerifyPhoneAuthResponse {
         private String registrationToken;
     }
 
     @AllArgsConstructor
-    @NoArgsConstructor
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
     @Getter
     public static class CreatePhoneAuthResponse {
         private UUID authId;
