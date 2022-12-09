@@ -59,8 +59,14 @@
 
 ## JWT authentication filter
 ### JwtAuthenticationFilter
-> `회원 생성 API` 와 `인증 토큰 조회 API` 는 `Registration token` 을 통해서 인증한다.   
+> `회원 생성 API` 와 `인증 토큰 조회 API` 는 `Registration token` 을 통해서 인증한다.  
+> `업데이트된 인증 토큰 조회 API` 는 `Refresh token` 을 통해서 인증한다.  
 > 그 외 API 는 `Access token` 을 통해서 인증한다.   
+> 
+> filter 에서 `SecurityContextHolder.getContext().setAuthentication(authentication);` 를 명시해서 
+> SecurityContext 에 authentication 을 저장해두면 `AbstractSecurityInterceptor.authenticateIfRequired` 메서드에서 
+> SecurityContext 에 저장된 authentication 을 `AuthenticationProvider` 에 넘겨준 후 AuthenticationProvider 에서 인증 진행한 결과인
+> authentication 객체를 SecurityContext 에 저장한다.  
 
 ### UnauthorizedExceptionFilter
 > `JwtAuthenticationFilter` 에서 인증에 실패하여 UnauthorizedException 이 발생한 경우 예외를 Response 에 담아서 반환한다.    

@@ -45,7 +45,6 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
                 UUID userIdFromAccess = authTokenService.getUserId(jsonWebToken, TokenType.ACCESS);
                 jwtAuthenticationToken.passAuthentication(userIdFromAccess);
         }
-        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return authentication;
     }
