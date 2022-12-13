@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import starter.springsecurity.web.filter.JwtAuthenticationFilter;
+import starter.springsecurity.web.filter.JwtAuthenticationProvider;
+import starter.springsecurity.web.filter.MonitoringAuthenticationProvider;
 import starter.springsecurity.web.filter.UnauthorizedExceptionFilter;
 
 /**
@@ -21,7 +24,9 @@ import starter.springsecurity.web.filter.UnauthorizedExceptionFilter;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper                     objectMapper;
+    private final JwtAuthenticationProvider        jwtAuthenticationProvider;
+    private final MonitoringAuthenticationProvider monitoringAuthenticationProvider;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -29,25 +34,35 @@ public class SecurityConfig {
         UnauthorizedExceptionFilter unauthorizedExceptionFilter = new UnauthorizedExceptionFilter(objectMapper);
 
         http
+                .csrf().disable()
                 .authorizeRequests()
-                .antMatchers("/actuator/**").permitAll()
                 .antMatchers("/authentication/phone/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(unauthorizedExceptionFilter, JwtAuthenticationFilter.class)
-                .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authenticationProvider(jwtAuthenticationProvider);
 
         return http.build();
     }
 
-//    @Bean
-//    public SecurityFilterChain monitoringFilterChain(HttpSecurity http) throws Exception {
-//        return http
-//                .authorizeRequests()
-//                .antMatchers("/actuator/**").hasRole("ROLE_ADMIN")
-//                .and()
-//                .build();
-//    }
+    @Bean
+    @Order(1)
+    public SecurityFilterChain monitoringFilterChain(HttpSecurity http) throws Exception {
+        http
+                .antMatcher("/actuator/**")
+                .csrf().disable()
+                .authorizeRequests()
+                .antMatchers("/actuator/health").permitAll()
+                .antMatchers("/actuator/**").hasRole("ADMIN")
+                .and()
+                .httpBasic()
+                .realmName("Application Monitoring")
+                .and()
+                .authenticationProvider(monitoringAuthenticationProvider);
+
+        return http.build();
+    }
 }

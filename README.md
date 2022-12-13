@@ -29,7 +29,8 @@
 > 주의할 점은 AuthenticationFilter 에서 예외를 발생시키지 않는다는 것이다. 예외를 발생시킬 시 SecurityConfig 에서 설정한 .permitAll() 과 같이 
 > 인가 설정이 걸린 URI 들이 정상 동작하지 않을 수 있다.
 > 
-> 2.AuthenticationProvider 에서 securityContext 로 전달받은 AuthenticationToken 객체를 검증 후 인증 처리를 진행한다.
+> 2.AuthenticationManager 에서 등록된 AuthenticationProvider 들을 사용해서 authenticate 를 진행한다.
+> 3.AuthenticationProvider 에서 securityContext 로 전달받은 AuthenticationToken 객체를 검증 후 인증 처리를 진행한다.
 
 ### UsernamePasswordAuthenticationToken 주의 사항
 > `UsernamePasswordAuthenticationToken` 생성 시 2개의 생성자를 통해서 인증 정보를 생성할 수 있다.  
@@ -147,8 +148,21 @@
 > 세션을 사용하지 않는다고 설정한다.
 
 ## Http Basic 으로 접근 인증하는 도메인
-### Actuator 
+### Multiple SecurityFilterChain
+> `SecurityConfig.java` 파일에 여러개의 SecurityFilterChain 생성이 가능하다.  
+> FilterChainProxy.class 의 doFilter 메서드의 첫 부분에 break point 를 걸고 API 호출을 한다.   
+> debugger 에서 this 아래 filterChains 에서 등록된 SecurityFilterChain 을 확인할 수 있다.  
 > 
+> URI 에 따라서 사용하는 SecurityFilterChain 분기   
+> `http.antMatcher()`(antMatchers 아님) 에 해당 SecurityFilterChain 을 이용할 URI 를 지정할 수 있다.   
+> 여기서는 '/actuator' 로 시작하는 URI 은 Http Basic Authentication 을 이용하고, 나머지는 Json Web Token 을 이용하도록 설정하였다.  
+> 
+> AuthenticationProvider
+> SecurityFilterChain 을 여러개 Bean 으로 등록하게 되면 `http.authenticationProvider()` 를 통해서 각각의 
+> AuthenticationFilter, AuthenticationManager 와 연동되는 AuthenticationProvider 를 명시해주어야 한다.  
+> Http Basic Authentication 의 경우 `MonitoringAuthenticationProvider` 를 명시하였으며, 
+> JWT 의 경우 `JwtAuthenticationProvider` 를 명시하였다.  
 
-## Http Basic Security setting for using monitoring tools(Spring Actuator, Prometheus and Grafana)
-
+### Actuator 
+> Spring Actuator 를 사용하여 프로젝트 health check, 프로젝트 빌드 정보 및 프로젝트 metrics 정보를 조회할 수 있도록
+> `GET /actuator/health`, `GET /actuator/info`, `GET /actuator/metrics` Endpoint 을 제공하였다.  
