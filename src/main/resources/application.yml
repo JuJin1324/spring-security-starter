@@ -25,6 +25,18 @@ decorator:
         p6spy:
             enable-logging: true
 
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health, info, metrics
+    endpoint:
+        health:
+            show-details: never
+    info:
+        env:
+            enabled: true
+
 token:
     registration:
         secretkey: RegistrationTokenSecretKey-local
