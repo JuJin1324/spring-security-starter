@@ -1,4 +1,4 @@
-package starter.springsecurity.web.filter;
+package starter.springsecurity.web.security.provider;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -40,7 +40,7 @@ public class MonitoringAuthenticationProvider implements AuthenticationProvider 
     }
 
     private UserDetails isValidUser(String username, String password) {
-        if (username.equalsIgnoreCase("admin") && password.equals("1234")) {
+        if (username.equals("admin") && password.equals("1234")) {
             UserDetails user = User
                     .withUsername(username)
                     .password("NOT_DISCLOSED")

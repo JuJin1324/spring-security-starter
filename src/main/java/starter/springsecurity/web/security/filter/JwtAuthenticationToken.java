@@ -1,4 +1,4 @@
-package starter.springsecurity.web.filter;
+package starter.springsecurity.web.security.filter;
 
 import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;

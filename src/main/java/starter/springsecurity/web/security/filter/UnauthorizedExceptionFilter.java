@@ -1,4 +1,4 @@
-package starter.springsecurity.web.filter;
+package starter.springsecurity.web.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

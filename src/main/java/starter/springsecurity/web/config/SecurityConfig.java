@@ -10,10 +10,10 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import starter.springsecurity.web.filter.JwtAuthenticationFilter;
-import starter.springsecurity.web.filter.JwtAuthenticationProvider;
-import starter.springsecurity.web.filter.MonitoringAuthenticationProvider;
-import starter.springsecurity.web.filter.UnauthorizedExceptionFilter;
+import starter.springsecurity.web.security.filter.JwtAuthenticationFilter;
+import starter.springsecurity.web.security.provider.JwtAuthenticationProvider;
+import starter.springsecurity.web.security.provider.MonitoringAuthenticationProvider;
+import starter.springsecurity.web.security.filter.UnauthorizedExceptionFilter;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)

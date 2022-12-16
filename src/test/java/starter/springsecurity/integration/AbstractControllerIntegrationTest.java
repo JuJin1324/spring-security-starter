@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
 import starter.springsecurity.domain.authentication.model.PhoneAuth;
@@ -16,6 +17,7 @@ import starter.springsecurity.domain.user.dto.UserCreateDto;
 import starter.springsecurity.domain.user.model.User;
 import starter.springsecurity.domain.user.repository.UserRepository;
 import starter.springsecurity.domain.user.service.UserService;
+import starter.springsecurity.web.config.SecurityConfig;
 
 import java.util.UUID;
 

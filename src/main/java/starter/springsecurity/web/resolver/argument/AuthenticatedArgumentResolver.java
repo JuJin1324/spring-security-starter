@@ -1,6 +1,5 @@
 package starter.springsecurity.web.resolver.argument;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -8,7 +7,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import starter.springsecurity.web.filter.JwtAuthenticationToken;
+import starter.springsecurity.web.security.filter.JwtAuthenticationToken;
 
 import java.util.UUID;
 

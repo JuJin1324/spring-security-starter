@@ -1,4 +1,4 @@
-package starter.springsecurity.web.filter;
+package starter.springsecurity.web.security.filter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;

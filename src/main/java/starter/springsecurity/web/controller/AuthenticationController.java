@@ -4,7 +4,6 @@ import lombok.*;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
 import starter.springsecurity.domain.authentication.dto.PhoneAuthCreateDto;
@@ -12,7 +11,6 @@ import starter.springsecurity.domain.authentication.service.AuthenticationServic
 import starter.springsecurity.domain.token.auth.service.AuthTokenService;
 import starter.springsecurity.domain.token.registration.service.RegistrationTokenService;
 import starter.springsecurity.domain.user.service.UserService;
-import starter.springsecurity.web.filter.JwtAuthenticationToken;
 import starter.springsecurity.web.resolver.argument.Authenticated;
 
 import javax.validation.Valid;

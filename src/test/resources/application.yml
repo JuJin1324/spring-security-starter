@@ -23,6 +23,18 @@ decorator:
         p6spy:
             enable-logging: true
 
+management:
+    endpoints:
+        web:
+            exposure:
+                include: health, info
+    endpoint:
+        health:
+            show-details: never
+    info:
+        env:
+            enabled: true
+
 logging:
     level:
         root: info
