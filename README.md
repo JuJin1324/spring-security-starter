@@ -165,4 +165,4 @@
 
 ### Actuator 
 > Spring Actuator 를 사용하여 프로젝트 health check, 프로젝트 빌드 정보 및 프로젝트 metrics 정보를 조회할 수 있도록
-> `GET /actuator/health`, `GET /actuator/info`, `GET /actuator/metrics` Endpoint 을 제공하였다.  
+> `GET /actuator/health`, `GET /actuator/info` Endpoint 을 제공하였다.  
