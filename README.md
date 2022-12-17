@@ -22,15 +22,29 @@
 > ```
 
 ## Spring security authentication
+### SecurityFilterChain Bean 등록
+> `@Configuration` 빈 클래스에 `@EnableWebSecurity` 를 선언 후  
+> SecurityFilterChain 을 빈으로 등록하는 메서드를 생성한다.
+
 ### 동작 구성
-> 1.AuthenticationFilter
+> **1.FilterChainProxy**  
+> doFilter 메서드에 breakPoint 를 걸어서 debugger 섹션에서 this 아래 filterChains 변수에서 위에서 빈으로 등록했던 SecurityFilterChain 의 객체 정보를 확인할 수 있다.   
+> 
+> **2.ExceptionTranslationFilter**   
+> Authentication filter 중 가장 먼저 진입하는 filter 이며 예외 전파를 위해서 가장 먼저 진입하는 Filter 이다.  
+> 해당 필터의 doFilter 메서드에서 try/catch 블락의 catch 블락 안에 breakPoint 를 걸어서 내부에서 어떤 예외가 발생했는지 확인할 수 있다.  
+> 
+> **3.AuthenticationFilter**
 > client 에서 request 로 받은 username 과 password 를 AuthenticationToken 객체에 담은 뒤 `SecurityContextHolder.getContext().setAuthentication(authentication);`
 > 를 통해서 AuthenticationProvider 로 전달한다.   
 > 주의할 점은 AuthenticationFilter 에서 예외를 발생시키지 않는다는 것이다. 예외를 발생시킬 시 SecurityConfig 에서 설정한 .permitAll() 과 같이 
 > 인가 설정이 걸린 URI 들이 정상 동작하지 않을 수 있다.
 > 
-> 2.AuthenticationManager 에서 등록된 AuthenticationProvider 들을 사용해서 authenticate 를 진행한다.
-> 3.AuthenticationProvider 에서 securityContext 로 전달받은 AuthenticationToken 객체를 검증 후 인증 처리를 진행한다.
+> **4.AuthenticationManager**   
+> 등록된 AuthenticationProvider 들을 사용해서 authenticate 를 진행한다.
+> 
+> **5.AuthenticationProvider**  
+> securityContext 로 전달받은 AuthenticationToken 객체를 검증 후 인증 처리를 진행한다.
 
 ### UsernamePasswordAuthenticationToken 주의 사항
 > `UsernamePasswordAuthenticationToken` 생성 시 2개의 생성자를 통해서 인증 정보를 생성할 수 있다.  
