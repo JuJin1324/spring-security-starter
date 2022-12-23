@@ -5,7 +5,7 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
-import starter.springsecurity.domain.token.auth.model.TokenType;
+import starter.springsecurity.domain.token.auth.entity.TokenType;
 import starter.springsecurity.domain.token.auth.service.AuthTokenService;
 import starter.springsecurity.domain.token.registration.service.RegistrationTokenService;
 import starter.springsecurity.web.security.filter.JwtAuthenticationToken;

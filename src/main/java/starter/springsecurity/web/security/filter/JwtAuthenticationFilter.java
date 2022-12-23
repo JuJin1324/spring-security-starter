@@ -8,7 +8,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import starter.springsecurity.domain.token.auth.model.TokenType;
+import starter.springsecurity.domain.token.auth.entity.TokenType;
 import starter.springsecurity.web.exception.InvalidJsonWebTokenException;
 
 import javax.servlet.FilterChain;

@@ -1,6 +1,6 @@
 package starter.springsecurity.domain.token.auth.exception;
 
-import starter.springsecurity.domain.token.auth.model.TokenType;
+import starter.springsecurity.domain.token.auth.entity.TokenType;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)

@@ -1,4 +1,4 @@
-package starter.springsecurity.domain.token.auth.model;
+package starter.springsecurity.domain.token.auth.entity;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)

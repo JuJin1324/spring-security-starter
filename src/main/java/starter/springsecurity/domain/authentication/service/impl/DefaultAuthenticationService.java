@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import starter.springsecurity.domain.authentication.exception.PhoneAuthNotFoundException;
 import starter.springsecurity.domain.authentication.exception.PhoneHasNotAuthenticatedException;
-import starter.springsecurity.domain.authentication.model.PhoneAuth;
+import starter.springsecurity.domain.authentication.entity.PhoneAuth;
 import starter.springsecurity.domain.authentication.repository.PhoneAuthRepository;
 import starter.springsecurity.domain.authentication.service.AuthenticationService;
 import starter.springsecurity.domain.entity.vo.PhoneNumber;

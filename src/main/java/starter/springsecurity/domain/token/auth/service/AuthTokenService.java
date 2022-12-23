@@ -2,7 +2,7 @@ package starter.springsecurity.domain.token.auth.service;
 
 import starter.springsecurity.domain.authentication.dto.AuthTokenReadDto;
 import starter.springsecurity.domain.token.auth.exception.InvalidRefreshTokenException;
-import starter.springsecurity.domain.token.auth.model.TokenType;
+import starter.springsecurity.domain.token.auth.entity.TokenType;
 
 import java.util.UUID;
 

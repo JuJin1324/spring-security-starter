@@ -1,7 +1,7 @@
 package starter.springsecurity.domain.token.auth.repository;
 
 import starter.springsecurity.domain.entity.repository.CommonRepository;
-import starter.springsecurity.domain.token.auth.model.RefreshToken;
+import starter.springsecurity.domain.token.auth.entity.RefreshToken;
 
 import java.util.Optional;
 import java.util.UUID;

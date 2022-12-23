@@ -10,8 +10,8 @@ import starter.springsecurity.domain.token.auth.exception.InvalidAccessTokenExce
 import starter.springsecurity.domain.token.auth.exception.InvalidRefreshTokenException;
 import starter.springsecurity.domain.token.auth.exception.NotSupportedTokenTypeException;
 import starter.springsecurity.domain.token.auth.exception.RefreshTokenNotFoundException;
-import starter.springsecurity.domain.token.auth.model.RefreshToken;
-import starter.springsecurity.domain.token.auth.model.TokenType;
+import starter.springsecurity.domain.token.auth.entity.RefreshToken;
+import starter.springsecurity.domain.token.auth.entity.TokenType;
 import starter.springsecurity.domain.token.auth.repository.RefreshTokenRepository;
 import starter.springsecurity.domain.token.auth.service.AuthTokenService;
 

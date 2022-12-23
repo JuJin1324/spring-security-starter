@@ -1,10 +1,9 @@
 package starter.springsecurity.domain.authentication.repository;
 
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import starter.springsecurity.domain.authentication.model.PhoneAuth;
+import starter.springsecurity.domain.authentication.entity.PhoneAuth;
 import starter.springsecurity.domain.entity.repository.CommonRepository;
 import starter.springsecurity.domain.entity.vo.PhoneNumber;
 

@@ -2,7 +2,7 @@ package starter.springsecurity.web.security.filter;
 
 import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import starter.springsecurity.domain.token.auth.model.TokenType;
+import starter.springsecurity.domain.token.auth.entity.TokenType;
 
 import java.util.UUID;
 
