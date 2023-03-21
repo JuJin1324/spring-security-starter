@@ -1,6 +1,6 @@
 package starter.spring.security.domain.token.auth.service;
 
-import starter.spring.security.domain.authentication.dto.AuthTokenReadDto;
+import starter.spring.security.domain.authentication.dto.AccessToken;
 import starter.spring.security.domain.token.auth.entity.TokenType;
 import starter.spring.security.domain.token.auth.exception.InvalidRefreshTokenException;
 
@@ -12,14 +12,14 @@ import java.util.UUID;
  */
 public interface AuthTokenService {
     /**
-     * 인증 토큰(access token + refresh token) 조회
+     * 인증 토큰(access token + refresh token) 생성
      */
-    AuthTokenReadDto createAuthToken(UUID userId);
+    AccessToken createAccessToken(UUID authenticationToken);
 
     /**
      * 인증 토큰(access token + refresh token) 업데이트
      */
-    AuthTokenReadDto getRefreshedAuthToken(UUID userId);
+    AccessToken updateAccessToken(UUID refreshToken);
 
     /**
      * 매개변수 accessToken 의 userId 와 매개변수 userId 가 일치하는지 확인

@@ -7,7 +7,7 @@ import starter.spring.security.domain.user.dto.UserCreateDto;
 import starter.spring.security.domain.user.dto.UserReadDto;
 import starter.spring.security.domain.user.model.User;
 import starter.spring.security.web.controller.UserController;
-import starter.spring.security.domain.authentication.dto.AuthTokenReadDto;
+import starter.spring.security.domain.authentication.dto.AccessToken;
 import starter.spring.security.domain.entity.vo.PhoneNumber;
 
 import java.util.TimeZone;
@@ -90,7 +90,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
         String nickname = "nickname test";
         PhoneNumber phoneNumber = new PhoneNumber(COUNTRY_CODE, PHONE_NO);
         User user = givenUser(phoneNumber, nickname);
-        AuthTokenReadDto authToken = givenAuthToken(user);
+        AccessToken authToken = givenAuthToken(user);
 
         /* when */
         String invalidAccessToken = "invalid access token";
@@ -127,7 +127,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
         String nickname = "nickname test";
         PhoneNumber phoneNumber = new PhoneNumber(COUNTRY_CODE, PHONE_NO);
         User user = givenUser(phoneNumber, nickname);
-        AuthTokenReadDto authToken = givenAuthToken(user);
+        AccessToken authToken = givenAuthToken(user);
 
         /* when */
         UUID userId = user.getUuid();

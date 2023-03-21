@@ -8,7 +8,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import starter.spring.security.domain.token.auth.entity.TokenType;
 import starter.spring.security.domain.user.model.User;
 import starter.spring.security.web.controller.AuthenticationController;
-import starter.spring.security.domain.authentication.dto.AuthTokenReadDto;
+import starter.spring.security.domain.authentication.dto.AccessToken;
 import starter.spring.security.domain.authentication.dto.PhoneAuthCreateDto;
 import starter.spring.security.domain.authentication.entity.PhoneAuth;
 import starter.spring.security.domain.entity.vo.PhoneNumber;
@@ -117,7 +117,7 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
         String nickname = "nickname test";
         PhoneNumber phoneNumber = new PhoneNumber(COUNTRY_CODE, PHONE_NO);
         User user = givenUser(phoneNumber, nickname);
-        AuthTokenReadDto authToken = givenAuthToken(user);
+        AccessToken authToken = givenAuthToken(user);
 
         /* when */
         String invalidRegistrationToken = "Invalid RegistrationToken";
@@ -164,8 +164,8 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
                 .andReturn();
 
         /* then */
-        AuthTokenReadDto response = objectMapper
-                .readValue(result.getResponse().getContentAsString(), AuthTokenReadDto.class);
+        AccessToken response = objectMapper
+                .readValue(result.getResponse().getContentAsString(), AccessToken.class);
 
         String accessToken = response.getAccessToken();
         assertTrue(authTokenService.isUserIdMatchedWithToken(accessToken, userId));
@@ -182,7 +182,7 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
         String nickname = "nickname test";
         PhoneNumber phoneNumber = new PhoneNumber(COUNTRY_CODE, PHONE_NO);
         User user = givenUser(phoneNumber, nickname);
-        AuthTokenReadDto authToken = givenAuthToken(user);
+        AccessToken authToken = givenAuthToken(user);
 
         /* when */
         String invalidRefreshToken = "Invalid RefreshToken";
@@ -219,7 +219,7 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
         PhoneNumber phoneNumber = new PhoneNumber(COUNTRY_CODE, PHONE_NO);
         User user = givenUser(phoneNumber, "nickname test");
         UUID userId = user.getUuid();
-        AuthTokenReadDto authToken = authTokenService.createAuthToken(userId);
+        AccessToken authToken = authTokenService.createAccessToken(userId);
         /*
          * JWT 생성 시 issuedAt 으로 받는 timestamp 가 초까지 정보만 담고 있기 때문에
          * accessToken 과 newAccessToken 에 들어가는 issuedAt 의 timestamp 에 차이가 존재하지 않게 된다.
@@ -235,8 +235,8 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
                 .andReturn();
 
         /* then */
-        AuthTokenReadDto response = objectMapper
-                .readValue(result.getResponse().getContentAsString(), AuthTokenReadDto.class);
+        AccessToken response = objectMapper
+                .readValue(result.getResponse().getContentAsString(), AccessToken.class);
 
         String newAccessToken = response.getAccessToken();
         assertTrue(authTokenService.isUserIdMatchedWithToken(newAccessToken, userId));

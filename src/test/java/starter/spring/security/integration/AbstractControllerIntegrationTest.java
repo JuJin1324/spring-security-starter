@@ -9,7 +9,7 @@ import starter.spring.security.domain.authentication.repository.PhoneAuthReposit
 import starter.spring.security.domain.authentication.service.AuthenticationService;
 import starter.spring.security.domain.user.model.User;
 import starter.spring.security.domain.user.repository.UserRepository;
-import starter.spring.security.domain.authentication.dto.AuthTokenReadDto;
+import starter.spring.security.domain.authentication.dto.AccessToken;
 import starter.spring.security.domain.authentication.entity.PhoneAuth;
 import starter.spring.security.domain.entity.vo.PhoneNumber;
 import starter.spring.security.domain.token.auth.service.AuthTokenService;
@@ -58,7 +58,7 @@ public abstract class AbstractControllerIntegrationTest {
         return userRepository.save(new User(phoneNumber, nickname));
     }
 
-    protected AuthTokenReadDto givenAuthToken(User user) {
-        return authTokenService.createAuthToken(user.getUuid());
+    protected AccessToken givenAuthToken(User user) {
+        return authTokenService.createAccessToken(user.getUuid());
     }
 }

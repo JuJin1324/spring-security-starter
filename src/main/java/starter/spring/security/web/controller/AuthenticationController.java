@@ -5,13 +5,9 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import starter.spring.security.domain.user.service.UserService;
-import starter.spring.security.domain.authentication.dto.AuthTokenReadDto;
 import starter.spring.security.domain.authentication.dto.PhoneAuthCreateDto;
 import starter.spring.security.domain.authentication.service.AuthenticationService;
-import starter.spring.security.domain.token.auth.service.AuthTokenService;
 import starter.spring.security.domain.token.registration.service.RegistrationTokenService;
-import starter.spring.security.web.resolver.argument.Authenticated;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
@@ -25,12 +21,10 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/authentication")
+@RequestMapping("/authentications")
 public class AuthenticationController {
     private final AuthenticationService    authenticationService;
-    private final UserService              userService;
     private final RegistrationTokenService registrationTokenService;
-    private final AuthTokenService         authTokenService;
 
     /**
      * 전화번호 인증 생성
@@ -45,9 +39,8 @@ public class AuthenticationController {
     /**
      * 전화번호 인증 검증
      */
-    @PostMapping(value = "/phone", params = "verify=true")
-    public ResponseEntity<VerifyPhoneAuthResponse> verifyPhoneAuth(
-            @RequestBody @Valid VerifyPhoneAuthRequest request) {
+    @PutMapping("/phone/verify")
+    public ResponseEntity<VerifyPhoneAuthResponse> verifyPhoneAuth(@RequestBody @Valid VerifyPhoneAuthRequest request) {
 
         UUID authId = request.getAuthId();
         String verificationCode = request.getVerificationCode();
@@ -58,32 +51,6 @@ public class AuthenticationController {
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache())
                 .body(new VerifyPhoneAuthResponse(registrationToken));
-    }
-
-    /**
-     * 인증 토큰 조회
-     */
-    @GetMapping("/token")
-    public ResponseEntity<AuthTokenReadDto> getAuthToken(@Authenticated UUID authId) {
-        UUID userId = userService.getUserId(authId);
-
-        AuthTokenReadDto authToken = authTokenService.createAuthToken(userId);
-
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache())
-                .body(authToken);
-    }
-
-    /**
-     * 업데이트된 인증 토큰 조회
-     */
-    @GetMapping(value = "/token", params = "updated=true")
-    public ResponseEntity<AuthTokenReadDto> getUpdatedAuthToken(@Authenticated UUID userId) {
-        AuthTokenReadDto authToken = authTokenService.getRefreshedAuthToken(userId);
-
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noCache())
-                .body(authToken);
     }
 
     @AllArgsConstructor

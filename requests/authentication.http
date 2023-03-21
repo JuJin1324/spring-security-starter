@@ -1,5 +1,5 @@
 ### CreatePhoneAuth
-POST http://localhost:8999/authentication/phone
+POST http://localhost:8999/authentications/phone
 Content-Type: application/json
 
 {
@@ -8,7 +8,7 @@ Content-Type: application/json
 }
 
 ### VerifyPhoneAuth
-POST http://localhost:8999/authentication/phone?verify=true
+POST http://localhost:8999/authentications/phone/verify
 Content-Type: application/json
 
 {
@@ -16,5 +16,5 @@ Content-Type: application/json
   "verificationCode": "169560"
 }
 
-### GetAuthToken
-GET http://localhost:8999/authentication/token
+### GetAccessToken
+GET http://localhost:8999/tokens/access

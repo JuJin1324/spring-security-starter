@@ -22,7 +22,7 @@ public interface UserService {
     /**
      * 회원 ID 조회
      */
-    UUID getUserId(UUID authId);
+    UUID getUserId(UUID authenticationToken);
 
     /**
      * 회원 단건 조회

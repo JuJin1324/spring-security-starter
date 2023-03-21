@@ -1,6 +1,5 @@
 package starter.spring.security.web.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +10,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import starter.spring.security.web.security.filter.JwtAuthenticationFilter;
-import starter.spring.security.web.security.filter.UnauthorizedExceptionFilter;
 import starter.spring.security.web.security.provider.JwtAuthenticationProvider;
 import starter.spring.security.web.security.provider.MonitoringAuthenticationProvider;
 
@@ -24,21 +22,21 @@ import starter.spring.security.web.security.provider.MonitoringAuthenticationPro
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final ObjectMapper                     objectMapper;
     private final JwtAuthenticationProvider        jwtAuthenticationProvider;
     private final MonitoringAuthenticationProvider monitoringAuthenticationProvider;
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain mainFilterChain(HttpSecurity http) throws Exception {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter();
-        UnauthorizedExceptionFilter unauthorizedExceptionFilter = new UnauthorizedExceptionFilter(objectMapper);
 
         http.authorizeRequests()
                 .anyRequest().authenticated()
-                .antMatchers("/authentication/phone/**").permitAll()
+                .antMatchers(
+                        "/authentications/phone/**",
+                        "/authentications/access-token/**"
+                ).permitAll()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(unauthorizedExceptionFilter, JwtAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(jwtAuthenticationProvider)

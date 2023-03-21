@@ -36,8 +36,8 @@ public class DefaultUserService implements UserService {
     }
 
     @Override
-    public UUID getUserId(UUID authId) {
-        User user = userRepository.findByAuthId(authId)
+    public UUID getUserId(UUID authenticationToken) {
+        User user = userRepository.findByAuthId(authenticationToken)
                 .orElseThrow(UserNotFoundException::new);
         return user.getUuid();
     }

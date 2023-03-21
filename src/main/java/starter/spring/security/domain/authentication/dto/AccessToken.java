@@ -10,11 +10,11 @@ import lombok.NoArgsConstructor;
  */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AuthTokenReadDto {
+public class AccessToken {
     private String accessToken;
     private String refreshToken;
 
-    public AuthTokenReadDto(String accessToken, String refreshToken) {
+    public AccessToken(String accessToken, String refreshToken) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
     }

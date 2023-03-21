@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import starter.spring.security.domain.authentication.dto.AuthTokenReadDto;
+import starter.spring.security.domain.authentication.dto.AccessToken;
 import starter.spring.security.domain.token.JsonWebTokenProvider;
 import starter.spring.security.domain.token.auth.entity.RefreshToken;
 import starter.spring.security.domain.token.auth.entity.TokenType;
@@ -51,13 +51,13 @@ public class DefaultAuthTokenService implements AuthTokenService {
 
     @Override
     @Transactional
-    public AuthTokenReadDto createAuthToken(UUID userId) {
+    public AccessToken createAccessToken(UUID userId) {
         RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId)
                 .orElseGet(() -> refreshTokenRepository.save(new RefreshToken(userId)));
 
         Map<String, Object> claims = new HashMap<>();
         claims.put(CLAIMS_USER_ID_KEY, refreshToken.getUserId());
-        AuthTokenReadDto authToken = generateAuthToken(claims);
+        AccessToken authToken = generateAuthToken(claims);
 
         refreshToken.updateToken(authToken.getRefreshToken());
 
@@ -66,8 +66,8 @@ public class DefaultAuthTokenService implements AuthTokenService {
 
     @Override
     @Transactional
-    public AuthTokenReadDto getRefreshedAuthToken(UUID userId) {
-        RefreshToken foundRefreshToken = refreshTokenRepository.findByUserId(userId)
+    public AccessToken updateAccessToken(UUID refreshToken) {
+        RefreshToken foundRefreshToken = refreshTokenRepository.findByUserId(refreshToken)
                 .orElseThrow(RefreshTokenNotFoundException::new);
         if (foundRefreshToken.isExpired()) {
             throw new InvalidRefreshTokenException("Refresh token has expired.");
@@ -75,7 +75,7 @@ public class DefaultAuthTokenService implements AuthTokenService {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put(CLAIMS_USER_ID_KEY, foundRefreshToken.getUserId());
-        AuthTokenReadDto authToken = generateAuthToken(claims);
+        AccessToken authToken = generateAuthToken(claims);
 
         foundRefreshToken.updateToken(authToken.getRefreshToken());
 
@@ -121,13 +121,13 @@ public class DefaultAuthTokenService implements AuthTokenService {
         refreshToken.expire();
     }
 
-    private AuthTokenReadDto generateAuthToken(Map<String, Object> claims) {
+    private AccessToken generateAuthToken(Map<String, Object> claims) {
         String accessToken = accessTokenProvider.createToken(
                 ACCESS_TOKEN_SUBJECT, claims, TOKEN_VALID_MINUTES);
         String refreshToken = refreshTokenProvider.createToken(
                 REFRESH_TOKEN_SUBJECT, claims, TOKEN_VALID_MINUTES);
 
-        return new AuthTokenReadDto(accessToken, refreshToken);
+        return new AccessToken(accessToken, refreshToken);
     }
 
     private void validateAccessToken(String accessToken) {

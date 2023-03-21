@@ -15,12 +15,16 @@ import java.util.UUID;
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     private final String    jsonWebToken;
     private final TokenType tokenType;
-    private       UUID      uuid;
+    private       UUID      userId;
 
-    public JwtAuthenticationToken(String jsonWebToken, TokenType tokenType) {
+    protected JwtAuthenticationToken(String jsonWebToken, TokenType tokenType) {
         super(null);
         this.jsonWebToken = jsonWebToken;
         this.tokenType = tokenType;
+    }
+
+    public static JwtAuthenticationToken of(String jsonWebToken, TokenType tokenType) {
+        return new JwtAuthenticationToken(jsonWebToken, tokenType);
     }
 
     @Override
@@ -33,8 +37,8 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         return this.jsonWebToken;
     }
 
-    public void passAuthentication(UUID uuid) {
+    public void passAuthentication(UUID userId) {
         super.setAuthenticated(true);
-        this.uuid = uuid;
+        this.userId = userId;
     }
 }
