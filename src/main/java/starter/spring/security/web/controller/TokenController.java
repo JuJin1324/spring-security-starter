@@ -5,7 +5,7 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import starter.spring.security.domain.authentication.dto.AccessToken;
-import starter.spring.security.domain.token.auth.service.AuthTokenService;
+import starter.spring.security.domain.token.auth.service.AccessTokenService;
 import starter.spring.security.domain.user.service.UserService;
 
 import java.util.UUID;
@@ -21,8 +21,8 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 @RequiredArgsConstructor
 @RequestMapping("/tokens")
 public class TokenController {
-    private final UserService      userService;
-    private final AuthTokenService authTokenService;
+    private final UserService        userService;
+    private final AccessTokenService accessTokenService;
 
     /**
      * 엑세스 토큰 조회
@@ -30,7 +30,7 @@ public class TokenController {
     @GetMapping("/access")
     public ResponseEntity<AccessToken> getAccessToken(@RequestHeader(AUTHORIZATION) UUID authenticationToken) {
         UUID userId = userService.getUserId(authenticationToken);
-        AccessToken accessToken = authTokenService.createAccessToken(userId);
+        AccessToken accessToken = accessTokenService.createAccessToken(userId);
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache())
@@ -42,7 +42,7 @@ public class TokenController {
      */
     @PutMapping("/access")
     public ResponseEntity<AccessToken> updateAccessToken(@RequestHeader(AUTHORIZATION) UUID refreshToken) {
-        AccessToken accessToken = authTokenService.updateAccessToken(refreshToken);
+        AccessToken accessToken = accessTokenService.updateAccessToken(refreshToken);
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noCache())

@@ -9,8 +9,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import starter.spring.security.web.security.filter.JwtAuthenticationFilter;
-import starter.spring.security.web.security.provider.JwtAuthenticationProvider;
+import starter.spring.security.web.security.filter.AccessTokenAuthenticationFilter;
+import starter.spring.security.web.security.provider.AccessTokenAuthenticationProvider;
 import starter.spring.security.web.security.provider.MonitoringAuthenticationProvider;
 
 /**
@@ -22,12 +22,12 @@ import starter.spring.security.web.security.provider.MonitoringAuthenticationPro
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final JwtAuthenticationProvider        jwtAuthenticationProvider;
-    private final MonitoringAuthenticationProvider monitoringAuthenticationProvider;
+    private final AccessTokenAuthenticationProvider accessTokenAuthenticationProvider;
+    private final MonitoringAuthenticationProvider  monitoringAuthenticationProvider;
 
     @Bean
     public SecurityFilterChain mainFilterChain(HttpSecurity http) throws Exception {
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter();
+        AccessTokenAuthenticationFilter accessTokenAuthenticationFilter = new AccessTokenAuthenticationFilter();
 
         http.authorizeRequests()
                 .anyRequest().authenticated()
@@ -36,10 +36,10 @@ public class SecurityConfig {
                         "/authentications/access-token/**"
                 ).permitAll()
                 .and()
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(accessTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authenticationProvider(jwtAuthenticationProvider)
+                .authenticationProvider(accessTokenAuthenticationProvider)
                 .csrf().disable();
 
         return http.build();

@@ -7,7 +7,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-import starter.spring.security.domain.token.auth.entity.TokenType;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -21,23 +20,23 @@ import java.io.IOException;
  */
 
 @Slf4j
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
     private static final String TOKEN_PREFIX = "Bearer ";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String jsonWebToken = getJwtFrom(request);
+        String accessToken = getTokenString(request);
 
-        Authentication authentication = StringUtils.hasText(jsonWebToken) ?
-                JwtAuthenticationToken.of(jsonWebToken, TokenType.ACCESS) :
-                JwtAuthenticationToken.of(null, TokenType.NONE);
+        Authentication authentication = StringUtils.hasText(accessToken) ?
+                AccessTokenAuthenticationToken.of(accessToken) :
+                AccessTokenAuthenticationToken.of(null);
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         filterChain.doFilter(request, response);
     }
 
-    private String getJwtFrom(HttpServletRequest request) {
+    private String getTokenString(HttpServletRequest request) {
         String bearerToken = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (ObjectUtils.isEmpty(bearerToken) || !bearerToken.startsWith(TOKEN_PREFIX)) {
             return null;

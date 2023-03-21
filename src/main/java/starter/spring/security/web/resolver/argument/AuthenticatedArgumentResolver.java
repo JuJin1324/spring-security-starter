@@ -7,7 +7,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import starter.spring.security.web.security.filter.JwtAuthenticationToken;
+import starter.spring.security.web.security.filter.AccessTokenAuthenticationToken;
 
 import java.util.UUID;
 
@@ -30,7 +30,7 @@ public class AuthenticatedArgumentResolver implements HandlerMethodArgumentResol
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-        JwtAuthenticationToken authentication = (JwtAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
+        AccessTokenAuthenticationToken authentication = (AccessTokenAuthenticationToken) SecurityContextHolder.getContext().getAuthentication();
         return authentication.getUserId();
     }
 }

@@ -124,7 +124,7 @@
 
 ---
 
-## JWT(Json Web Token) 을 통한 Security 구현
+## Access token(Json Web Token) 을 통한 Security 구현
 ### Security 설정
 > ```java
 > @Configuration
@@ -135,20 +135,20 @@
 >     
 >     @Bean
 >     public SecurityFilterChain mainFilterChain(HttpSecurity http) throws Exception {
->         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter();
->         UnauthorizedExceptionFilter unauthorizedExceptionFilter = new UnauthorizedExceptionFilter(objectMapper);
+>         AccessTokenAuthenticationFilter accessTokenAuthenticationFilter = new AccessTokenAuthenticationFilter();
+>         // UnauthorizedExceptionFilter unauthorizedExceptionFilter = new UnauthorizedExceptionFilter(objectMapper);
 >
 >         http.authorizeRequests()
 >                 .anyRequest().authenticated()     // 모든 요청에 인증이 요구된다.
->                 .antMatchers("/authentication/phone/**").permitAll()  // 해당 URI 의 요청에는 인증이 요구되지 않는다. 
+>                 .antMatchers("/authentications/phone/**").permitAll()  // 해당 URI 의 요청에는 인증이 요구되지 않는다. 
 >                 .and()
->                 // jwtAuthenticationFilter 필터를 UsernamePasswordAuthenticationFilter 앞에 둔다.
->                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
->                 // [사용 안함] unauthorizedExceptionFilter 필터를 jwtAuthenticationFilter 앞에 둔다.      
->                 //.addFilterBefore(unauthorizedExceptionFilter, JwtAuthenticationFilter.class)
+>                 // accessTokenAuthenticationFilter 필터를 UsernamePasswordAuthenticationFilter 앞에 둔다.
+>                 .addFilterBefore(accessTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+>                 // [사용 안함] unauthorizedExceptionFilter 필터를 accessTokenAuthenticationFilter 앞에 둔다.      
+>                 //.addFilterBefore(unauthorizedExceptionFilter, AccessTokenAuthenticationFilter.class)
 >                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)   // 세션을 사용하지 않는다고 설정한다.
 >                 .and()
->                 .authenticationProvider(jwtAuthenticationProvider)    // 인증 로직을 담은 jwtAuthenticationProvider 를 등록한다. 
+>                 .authenticationProvider(accessTokenAuthenticationProvider)    // 인증 로직을 담은 AccessTokenAuthenticationProvider 를 등록한다. 
 >                 .csrf().disable();
 > 
 >         return http.build();
@@ -156,7 +156,7 @@
 > }
 > ```
 
-### JwtAuthenticationFilter
+### AccessTokenAuthenticationFilter
 > Header 의 문자열 인증 정보를 Authentication 객체로 변환하여 SecurityContext 에 등록한다.  
 > 별도의 예외 처리는 하지 않으며 문자열 인증 정보가 null 인 경우 그에 맞는 예외를 담은 Authentication 객체를 만들어서 SecurityContext 에 등록한다.     
 
@@ -166,8 +166,8 @@
 > JwtAuthenticationFilter 에서는 단순히 인증 정보를 Authentication 객체로 변환만 담당하기 때문에 예외를 발생시키지 않도록 구현하였다.
 > 그래서 UnauthorizedExceptionFilter 는 더이상 사용하지 않는다.
 
-### JwtAuthenticationProvider
-> JwtAuthenticationFilter 에서 변환하여 SecurityContext 에 등록한 Authentication 객체를 가지고 해당 인증 객체가 유효한지 검증한다.  
+### AccessTokenAuthenticationProvider
+> AccessTokenAuthenticationFilter 에서 변환하여 SecurityContext 에 등록한 Authentication 객체를 가지고 해당 인증 객체가 유효한지 검증한다.  
 > 예외 발생 시 예외를 던진다. 하지만 예외는 AuthenticationException 을 상속받은 예외만 처리가 가능하다.  
 
 ---

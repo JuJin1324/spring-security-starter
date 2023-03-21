@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import starter.spring.security.domain.token.auth.entity.TokenType;
 import starter.spring.security.domain.user.model.User;
 import starter.spring.security.web.controller.AuthenticationController;
 import starter.spring.security.domain.authentication.dto.AccessToken;
@@ -13,7 +12,7 @@ import starter.spring.security.domain.authentication.dto.PhoneAuthCreateDto;
 import starter.spring.security.domain.authentication.entity.PhoneAuth;
 import starter.spring.security.domain.entity.vo.PhoneNumber;
 import starter.spring.security.domain.token.auth.repository.RefreshTokenRepository;
-import starter.spring.security.domain.token.auth.service.AuthTokenService;
+import starter.spring.security.domain.token.auth.service.AccessTokenService;
 
 import java.util.TimeZone;
 import java.util.UUID;
@@ -42,7 +41,7 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
     RefreshTokenRepository refreshTokenRepository;
 
     @Autowired
-    AuthTokenService authTokenService;
+    AccessTokenService accessTokenService;
 
     @BeforeEach
     void setUp() {
@@ -168,8 +167,8 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
                 .readValue(result.getResponse().getContentAsString(), AccessToken.class);
 
         String accessToken = response.getAccessToken();
-        assertTrue(authTokenService.isUserIdMatchedWithToken(accessToken, userId));
-        assertEquals(userId, authTokenService.getUserId(accessToken, TokenType.ACCESS));
+        assertTrue(accessTokenService.isUserIdMatchedWithToken(accessToken, userId));
+        assertEquals(userId, accessTokenService.getUserId(accessToken, TokenType.ACCESS));
 
         String refreshToken = response.getRefreshToken();
         assertTrue(refreshTokenRepository.findByToken(refreshToken).isPresent());
@@ -219,7 +218,7 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
         PhoneNumber phoneNumber = new PhoneNumber(COUNTRY_CODE, PHONE_NO);
         User user = givenUser(phoneNumber, "nickname test");
         UUID userId = user.getUuid();
-        AccessToken authToken = authTokenService.createAccessToken(userId);
+        AccessToken authToken = accessTokenService.createAccessToken(userId);
         /*
          * JWT 생성 시 issuedAt 으로 받는 timestamp 가 초까지 정보만 담고 있기 때문에
          * accessToken 과 newAccessToken 에 들어가는 issuedAt 의 timestamp 에 차이가 존재하지 않게 된다.
@@ -239,8 +238,8 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
                 .readValue(result.getResponse().getContentAsString(), AccessToken.class);
 
         String newAccessToken = response.getAccessToken();
-        assertTrue(authTokenService.isUserIdMatchedWithToken(newAccessToken, userId));
-        assertEquals(userId, authTokenService.getUserId(newAccessToken, TokenType.ACCESS));
+        assertTrue(accessTokenService.isUserIdMatchedWithToken(newAccessToken, userId));
+        assertEquals(userId, accessTokenService.getUserId(newAccessToken, TokenType.ACCESS));
         assertNotEquals(authToken.getAccessToken(), newAccessToken);
     }
 }

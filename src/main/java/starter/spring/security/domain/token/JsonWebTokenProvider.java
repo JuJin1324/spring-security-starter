@@ -1,6 +1,9 @@
 package starter.spring.security.domain.token;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.impl.crypto.DefaultJwtSignatureValidator;
+import io.jsonwebtoken.impl.crypto.JwtSignatureValidator;
+import io.jsonwebtoken.impl.crypto.SignatureValidatorFactory;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
