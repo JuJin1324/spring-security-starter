@@ -6,7 +6,7 @@ spring:
         driver-class-name: com.mysql.cj.jdbc.Driver
         username: spring
         password: security
-        url: jdbc:mysql://localhost:3306/spring_security
+        url: jdbc:mysql://localhost:3399/spring_security
     jpa:
         open-in-view: false
         show-sql: true

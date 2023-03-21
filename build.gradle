@@ -10,7 +10,7 @@ plugins {
     id 'java'
 }
 
-group = 'starter'
+group = 'starter.spring'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 

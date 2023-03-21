@@ -1,0 +1,6 @@
+### Health
+GET http://localhost:8999/actuator/health
+
+### Info
+GET http://localhost:8999/actuator/info
+

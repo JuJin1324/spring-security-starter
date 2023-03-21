@@ -12,8 +12,8 @@ POST http://localhost:8999/authentication/phone?verify=true
 Content-Type: application/json
 
 {
-  "authId": "ad94bd2c-6731-40fd-96bb-1a2b6ca466ff",
-  "verificationCode": "522510"
+  "authId": "17fb4762-4b4d-4caa-9335-9c92f79dfdf2",
+  "verificationCode": "169560"
 }
 
 ### GetAuthToken
