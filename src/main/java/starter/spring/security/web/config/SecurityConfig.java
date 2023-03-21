@@ -11,9 +11,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import starter.spring.security.web.security.filter.JwtAuthenticationFilter;
+import starter.spring.security.web.security.filter.UnauthorizedExceptionFilter;
 import starter.spring.security.web.security.provider.JwtAuthenticationProvider;
 import starter.spring.security.web.security.provider.MonitoringAuthenticationProvider;
-import starter.spring.security.web.security.filter.UnauthorizedExceptionFilter;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)
@@ -33,17 +33,16 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter();
         UnauthorizedExceptionFilter unauthorizedExceptionFilter = new UnauthorizedExceptionFilter(objectMapper);
 
-        http
-                .csrf().disable()
-                .authorizeRequests()
-//                .antMatchers("/authentication/phone/**").permitAll()
+        http.authorizeRequests()
                 .anyRequest().authenticated()
+                .antMatchers("/authentication/phone/**").permitAll()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(unauthorizedExceptionFilter, JwtAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .authenticationProvider(jwtAuthenticationProvider);
+                .authenticationProvider(jwtAuthenticationProvider)
+                .csrf().disable();
 
         return http.build();
     }
@@ -51,9 +50,7 @@ public class SecurityConfig {
     @Bean
     @Order(1)
     public SecurityFilterChain monitoringFilterChain(HttpSecurity http) throws Exception {
-        http
-                .antMatcher("/actuator/**")
-                .csrf().disable()
+        http.antMatcher("/actuator/**")
                 .authorizeRequests()
                 .antMatchers("/actuator/health").permitAll()
                 .antMatchers("/actuator/**").hasRole("ADMIN")
@@ -61,7 +58,8 @@ public class SecurityConfig {
                 .httpBasic()
                 .realmName("Application Monitoring")
                 .and()
-                .authenticationProvider(monitoringAuthenticationProvider);
+                .authenticationProvider(monitoringAuthenticationProvider)
+                .csrf().disable();
 
         return http.build();
     }

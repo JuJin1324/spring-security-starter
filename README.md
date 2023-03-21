@@ -102,17 +102,17 @@
 > @Bean
 > @Order(1)
 > public SecurityFilterChain monitoringFilterChain(HttpSecurity http) throws Exception {
->         http.authorizeRequests()
->             .antMatcher("/domains/**")  // 현재 설정이 적용될 도메인 URI
->             .csrf().disable()           // csrf disable
->             .antMatchers("/permits/**").permitAll() // 해당 도메인 URI 의 요청은 모두 인증을 건너뜀
->             .antMatchers("/admins/**").hasRole("ADMIN")   // 해당 도메인 URI 요청은 모두 인증 및 ADMIN 역할의 인가가 필요
->             .and()
->             .httpBasic()                // HTTP BASIC 을 통한 인증
->             .realmName("Application Monitoring")    // realm은 아래와 같이 해설 형식으로 구성되어 사용자가 권한에 대한 범위를 이해하는 데 도움이 되어야 합니다. 
+>         http.antMatcher("/basics/**")  // antMatchers 가 아닌 antMatcher 로 현재 설정이 적용될 도메인 URI 를 설정한다. 이 외의 URI 에는 설정이 적용되지 않는다.
+>               .authorizeRequests()             
+>               .antMatchers("/basics/permits/**").permitAll()        // 해당 도메인 URI 의 요청은 모두 인증을 건너뜀
+>               .antMatchers("/basics/admins/**").hasRole("ADMIN")   // 해당 도메인 URI 요청은 모두 인증 및 ADMIN 역할의 인가가 필요
+>               .and()
+>               .httpBasic()                // HTTP BASIC 을 통한 인증
+>               .realmName("Application Monitoring")    // realm은 아래와 같이 해설 형식으로 구성되어 사용자가 권한에 대한 범위를 이해하는 데 도움이 되어야 합니다. 
 >                                                     // 예시처럼 Application 의 Monitoring 에 해당하는 정보만 열람이 가능하다는 표시  
->             .and()
->             .authenticationProvider(monitoringAuthenticationProvider);  // 인증 로직을 담은 커스텀 Provider 클래스 등록 
+>               .and()
+>               .authenticationProvider(monitoringAuthenticationProvider)  // 인증 로직을 담은 커스텀 Provider 클래스 등록
+>               .csrf().disable();           // csrf disable 
 > 
 >         return http.build();
 >     }
@@ -125,110 +125,86 @@
 ---
 
 ## JWT(Json Web Token) 을 통한 Security 구현
-### JwtAuthenticationFilter
-> `회원 생성 API` 와 `인증 토큰 조회 API` 는 `Registration token` 을 통해서 인증한다.  
-> `업데이트된 인증 토큰 조회 API` 는 `Refresh token` 을 통해서 인증한다.  
-> 그 외 API 는 `Access token` 을 통해서 인증한다.   
+### Security 설정
+> ```java
+> @Configuration
+> @EnableWebSecurity
+> @RequiredArgsConstructor
+> public class SecurityConfig {
+>     ...
+>     
+>     @Bean
+>     public SecurityFilterChain mainFilterChain(HttpSecurity http) throws Exception {
+>         JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter();
+>         UnauthorizedExceptionFilter unauthorizedExceptionFilter = new UnauthorizedExceptionFilter(objectMapper);
+>
+>         http.authorizeRequests()
+>                 .anyRequest().authenticated()     // 모든 요청에 인증이 요구된다.
+>                 .antMatchers("/authentication/phone/**").permitAll()  // 해당 URI 의 요청에는 인증이 요구되지 않는다. 
+>                 .and()
+>                 // jwtAuthenticationFilter 필터를 UsernamePasswordAuthenticationFilter 앞에 둔다.
+>                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+>                 // [사용 안함] unauthorizedExceptionFilter 필터를 jwtAuthenticationFilter 앞에 둔다.      
+>                 //.addFilterBefore(unauthorizedExceptionFilter, JwtAuthenticationFilter.class)
+>                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)   // 세션을 사용하지 않는다고 설정한다.
+>                 .and()
+>                 .authenticationProvider(jwtAuthenticationProvider)    // 인증 로직을 담은 jwtAuthenticationProvider 를 등록한다. 
+>                 .csrf().disable();
 > 
-> filter 에서 `SecurityContextHolder.getContext().setAuthentication(authentication);` 를 명시해서 
-> SecurityContext 에 authentication 을 저장해두면 `AbstractSecurityInterceptor.authenticateIfRequired` 메서드에서 
-> SecurityContext 에 저장된 authentication 을 `AuthenticationProvider` 에 넘겨준 후 AuthenticationProvider 에서 인증 진행한 결과인
-> authentication 객체를 SecurityContext 에 저장한다.  
-
-### UnauthorizedExceptionFilter
-> `JwtAuthenticationFilter` 에서 인증에 실패하여 UnauthorizedException 이 발생한 경우 예외를 Response 에 담아서 반환한다.    
-> Filter 의 호출 규칙에 따라서 `JwtAuthenticationFilter` 앞에 호출되도록 한다.  
-> ```java
-> ...
-> .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-> .addFilterBefore(unauthorizedExceptionFilter, JwtAuthenticationFilter.class)
-> ...
-> ```
-
-## JWT 로 접근 인증하는 도메인
-> 1.전화번호 인증 생성 -> 2.전화번호 인증 검증(verificationCode 는 DB에서 직접 조회해서 찾는다.) 
-> -> 3.회원 생성(이미 생성한 회원이면 건너뛴다.) -> 4.인증 토큰 조회 -> 5.회원 단건 조회
-
-### Authentication
-> 전화번호 인증 생성: `POST /authentications/phone`  
-> 전화번호 인증 검증: `POST /authentications/phone?verify=login`  
-> 인증 토큰 조회: `GET /authentications/token`  
-
-### 전화번호 인증 생성
-> URI: `POST /authentications/phone`  
-> Request body: `{"countryCode": "82", "phoneNo": "01012341234"}`  
-> Response status: `201 Created`   
-> Response body: `{"authId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}"`
-
-### 전화번호 인증 검증
-> URI: `POST /authentications/phone`  
-> Request param: `verify=true`  
-> Request body: `{"authId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx", "verificationCode": "123456"}`
-> Response body: `{"registrationToken": "{jwt}"}`  
-
-### 인증 토큰 조회
-> URI: `GET /authentications/token`
-> Request Header: `authorization=bearer {registration token}`
-> Response body: `{"accessToken": "", "refreshToken": ""}`
-
-### User
-> 회원 생성: `POST /users`    
-> 회원 단건 조회: `GET /users/{userId}`    
-
-###  회원 생성
-> URI: `POST /users`  
-> Request body: `{"nickname": "닉네임"}`  
-> Request header: `Authorization: {registration token}`    
-> Response status: `201 Created`  
-> Response body: `{"userId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"}`  
-
-### 회원 단건 조회
-> URI: `GET /users/{userId}`  
-> Request header: `Authorization: Bearer xxxxxxxxxxxxxxxxxxxxxxxxxxx(accessToken)`  
-> Response body: `{"userId": "", "nickname": ""}`
-
-## JWT Security setting
-### WebSecurityCustomizer
-> 인증(Authentication) 이 필요없는 URI 는 `WebSecurityCustomizer` 를 Bean 으로 등록   
-> ```java
-> @Bean
-> public WebSecurityCustomizer webSecurityCustomizer() {
->   return (web) -> web.ignoring().antMatchers("/authentication/**");
+>         return http.build();
+>     }
 > }
 > ```
 
-### authorizeRequests
-> `http.authorizeRequests`: 요청에 대한 사용권한 체크
+### JwtAuthenticationFilter
+> Header 의 문자열 인증 정보를 Authentication 객체로 변환하여 SecurityContext 에 등록한다.  
+> 별도의 예외 처리는 하지 않으며 문자열 인증 정보가 null 인 경우 그에 맞는 예외를 담은 Authentication 객체를 만들어서 SecurityContext 에 등록한다.     
 
-### Authorized Domain
-> `.antMatchers("/admin/**").hasRole("ROLE_ADMIN")`: Admin 도메인만 `ROLE_ADMIN` 접근 권한이 필요하도록 설정  
-> `.antMatchers("/**").permitAll()`: 나머지 도메인은 인증만하면 인가 없이 접근 허용
+### [사용 안함] UnauthorizedExceptionFilter
+> `JwtAuthenticationFilter` 에서 인증에 실패하여 UnauthorizedException 이 발생한 경우 예외를 Response 에 담아서 반환한다.    
+> Filter 의 호출 규칙에 따라서 `JwtAuthenticationFilter` 앞에 호출되도록 한다.  
+> JwtAuthenticationFilter 에서는 단순히 인증 정보를 Authentication 객체로 변환만 담당하기 때문에 예외를 발생시키지 않도록 구현하였다.
+> 그래서 UnauthorizedExceptionFilter 는 더이상 사용하지 않는다.
 
-### addFilterBefore
-> `http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)`:
-> JwtAuthenticationFilter를 UsernamePasswordAuthenticationFilter 전에 넣는다.
->
-> 토큰에 저장된 유저정보를 활용하여야 하기 때문에 CustomUserDetailService 클래스를 생성해야한다.
+### JwtAuthenticationProvider
+> JwtAuthenticationFilter 에서 변환하여 SecurityContext 에 등록한 Authentication 객체를 가지고 해당 인증 객체가 유효한지 검증한다.  
+> 예외 발생 시 예외를 던진다. 하지만 예외는 AuthenticationException 을 상속받은 예외만 처리가 가능하다.  
 
-### http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-> 세션을 사용하지 않는다고 설정한다.
+---
 
-## Http Basic 으로 접근 인증하는 도메인
-### Multiple SecurityFilterChain
+## 여러개의 SecurityFilterChain
+### Config
 > `SecurityConfig.java` 파일에 여러개의 SecurityFilterChain 생성이 가능하다.  
-> FilterChainProxy.class 의 doFilter 메서드의 첫 부분에 break point 를 걸고 API 호출을 한다.   
-> debugger 에서 this 아래 filterChains 에서 등록된 SecurityFilterChain 을 확인할 수 있다.  
+> ```java
+> @Configuration
+> @EnableWebSecurity
+> @RequiredArgsConstructor
+> public class SecurityConfig {
+>     ...
 > 
-> URI 에 따라서 사용하는 SecurityFilterChain 분기   
+>     @Bean
+>     public SecurityFilterChain mainFilterChain(HttpSecurity http) throws Exception {
+>         http.authorizeRequests()
+>             ...;
+> 
+>         return http.build();
+>     }
+> 
+>     @Bean
+>     @Order(1)
+>     public SecurityFilterChain monitoringFilterChain(HttpSecurity http) throws Exception {
+>         http.antMatcher("/actuator/**")    // 현재 SecurityFilterChain 은 /actuator 아래 URI API 를 호출 시에만 적용된다.
+>                                            // 다른 URI 의 API 호출 시에는 mainFilterChain 에서 생성한 SecurityFilterChain 이 적용된다. 
+>             .authorizeRequests()
+>             ...;
+> 
+>         return http.build();
+>     }
+> }
+> ```
 > `http.antMatcher()`(antMatchers 아님) 에 해당 SecurityFilterChain 을 이용할 URI 를 지정할 수 있다.   
-> 여기서는 '/actuator' 로 시작하는 URI 은 Http Basic Authentication 을 이용하고, 나머지는 Json Web Token 을 이용하도록 설정하였다.  
-> 
-> AuthenticationProvider
-> SecurityFilterChain 을 여러개 Bean 으로 등록하게 되면 `http.authenticationProvider()` 를 통해서 각각의 
-> AuthenticationFilter, AuthenticationManager 와 연동되는 AuthenticationProvider 를 명시해주어야 한다.  
-> Http Basic Authentication 의 경우 `MonitoringAuthenticationProvider` 를 명시하였으며, 
-> JWT 의 경우 `JwtAuthenticationProvider` 를 명시하였다.  
+> 여기서는 '/actuator' 로 시작하는 URI 은 Http Basic Authentication 을 이용하고, 나머지는 Json Web Token 을 이용하도록 설정하였다.
 
-### Actuator 
-> Spring Actuator 를 사용하여 프로젝트 health check, 프로젝트 빌드 정보 및 프로젝트 metrics 정보를 조회할 수 있도록
-> `GET /actuator/health`, `GET /actuator/info` Endpoint 을 제공하였다.  
+### 등록된 FilterChain 확인
+> FilterChainProxy.class 의 doFilter 메서드의 첫 부분에 break point 를 걸고 아무 API 호출을 한다.   
+> debugger 에서 this 아래 filterChains 에서 등록된 SecurityFilterChain 을 확인할 수 있다.
