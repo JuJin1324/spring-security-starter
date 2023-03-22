@@ -15,7 +15,7 @@ import javax.validation.constraints.NotBlank;
 @AllArgsConstructor
 @Setter
 @Getter
-public class PhoneAuthCreateDto {
+public class PhoneAuthenticationCreateDto {
     @NotBlank
     private String countryCode;
     @NotBlank

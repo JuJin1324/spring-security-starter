@@ -1,4 +1,4 @@
-package starter.spring.security.domain.token.auth.exception;
+package starter.spring.security.domain.token.exception;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)

@@ -1,7 +1,9 @@
-package starter.spring.security.domain.token.auth.service;
+package starter.spring.security.domain.token.service;
 
 import starter.spring.security.domain.authentication.dto.AccessToken;
-import starter.spring.security.domain.token.auth.exception.InvalidRefreshTokenException;
+import starter.spring.security.domain.token.exception.ExpiredAccessTokenException;
+import starter.spring.security.domain.token.exception.InvalidAccessTokenException;
+import starter.spring.security.domain.token.exception.InvalidRefreshTokenException;
 
 import java.util.UUID;
 
@@ -11,19 +13,19 @@ import java.util.UUID;
  */
 public interface AccessTokenService {
     /**
-     * 인증 토큰(access token + refresh token) 생성
+     * 엑세스 토큰 생성
      */
     AccessToken createAccessToken(UUID authenticationToken);
 
     /**
-     * 인증 토큰(access token + refresh token) 업데이트
+     * 엑세스 토큰 업데이트
      */
     AccessToken updateAccessToken(UUID refreshToken);
 
     /**
      * 엑세스 토큰 검증
      */
-    void verifyAccessToken(String accessToken);
+    void verifyAccessToken(String accessToken) throws InvalidAccessTokenException, ExpiredAccessTokenException;
 
     /**
      * 매개변수 accessToken 의 userId 와 매개변수 userId 가 일치하는지 확인

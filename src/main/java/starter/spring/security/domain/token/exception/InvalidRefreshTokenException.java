@@ -1,4 +1,4 @@
-package starter.spring.security.domain.token.auth.exception;
+package starter.spring.security.domain.token.exception;
 
 import starter.spring.security.exception.UnauthorizedException;
 

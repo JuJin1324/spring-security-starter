@@ -1,4 +1,4 @@
-package starter.spring.security.domain.user.model;
+package starter.spring.security.domain.user.entity;
 
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import starter.spring.security.domain.user.model.User;
+import starter.spring.security.domain.user.entity.User;
 import starter.spring.security.domain.entity.vo.PhoneNumber;
 
 import java.util.UUID;

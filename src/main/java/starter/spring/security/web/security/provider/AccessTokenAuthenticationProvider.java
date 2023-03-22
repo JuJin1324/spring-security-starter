@@ -6,7 +6,9 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
-import starter.spring.security.domain.token.auth.service.AccessTokenService;
+import starter.spring.security.domain.token.exception.ExpiredAccessTokenException;
+import starter.spring.security.domain.token.exception.InvalidAccessTokenException;
+import starter.spring.security.domain.token.service.AccessTokenService;
 import starter.spring.security.web.security.filter.AccessTokenAuthenticationToken;
 
 import java.util.UUID;
@@ -24,14 +26,17 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         AccessTokenAuthenticationToken accessTokenAuthenticationToken = (AccessTokenAuthenticationToken) authentication;
-        if (accessTokenAuthenticationToken.hasNoPrincipal()) {
-            throw new BadCredentialsException("Has no principal.");
+        if (!accessTokenAuthenticationToken.hasAccessToken()) {
+            throw new BadCredentialsException("Has no access token.");
         }
 
         String accessToken = (String) accessTokenAuthenticationToken.getPrincipal();
+        try {
+            accessTokenService.verifyAccessToken(accessToken);
+        } catch (InvalidAccessTokenException | ExpiredAccessTokenException ex) {
+            throw new BadCredentialsException(ex.getMessage());
+        }
 
-        UUID userId = accessTokenService.getUserId(accessToken);
-        accessTokenAuthenticationToken.updateUserId(userId);
         accessTokenAuthenticationToken.passAuthentication();
 
         return authentication;

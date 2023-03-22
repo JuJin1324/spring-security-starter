@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import starter.spring.security.domain.entity.repository.CommonRepository;
 import starter.spring.security.domain.entity.vo.PhoneNumber;
-import starter.spring.security.domain.user.model.User;
+import starter.spring.security.domain.user.entity.User;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -22,7 +22,7 @@ public interface UserRepository extends CommonRepository<User, Long> {
     Optional<User> findByUuid(UUID userId);
 
     @Query("select u from User u " +
-            "inner join PhoneAuth pa on pa.phoneNumber = u.phoneNumber " +
+            "inner join PhoneAuthentication pa on pa.phoneNumber = u.phoneNumber " +
             "where pa.uuid = :authId")
     Optional<User> findByAuthId(@Param("authId") UUID authId);
 

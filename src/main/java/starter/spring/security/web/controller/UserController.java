@@ -3,11 +3,9 @@ package starter.spring.security.web.controller;
 import lombok.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import starter.spring.security.domain.user.service.UserService;
-import starter.spring.security.domain.authentication.service.AuthenticationService;
-import starter.spring.security.domain.entity.vo.PhoneNumber;
 import starter.spring.security.domain.user.dto.UserCreateDto;
 import starter.spring.security.domain.user.dto.UserReadDto;
+import starter.spring.security.domain.user.service.UserService;
 import starter.spring.security.web.resolver.argument.Authenticated;
 
 import javax.validation.Valid;
@@ -22,15 +20,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
-    private final AuthenticationService authenticationService;
-    private final UserService           userService;
+    private final UserService userService;
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public CreateUserResponse createUser(@Authenticated UUID authId,
+    public CreateUserResponse createUser(@Authenticated UUID authenticationToken,
                                          @RequestBody @Valid UserCreateDto createDto) {
-        PhoneNumber phoneNumber = authenticationService.getAuthenticatedPhoneNumber(authId);
-        UUID userId = userService.createUser(phoneNumber, createDto);
+        UUID userId = userService.createUser(authenticationToken, createDto);
 
         return new CreateUserResponse(userId);
     }

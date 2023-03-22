@@ -5,14 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
-import starter.spring.security.domain.authentication.repository.PhoneAuthRepository;
+import starter.spring.security.domain.authentication.repository.PhoneAuthenticationRepository;
 import starter.spring.security.domain.authentication.service.AuthenticationService;
-import starter.spring.security.domain.user.model.User;
+import starter.spring.security.domain.user.entity.User;
 import starter.spring.security.domain.user.repository.UserRepository;
 import starter.spring.security.domain.authentication.dto.AccessToken;
-import starter.spring.security.domain.authentication.entity.PhoneAuth;
+import starter.spring.security.domain.authentication.entity.PhoneAuthentication;
 import starter.spring.security.domain.entity.vo.PhoneNumber;
-import starter.spring.security.domain.token.auth.service.AccessTokenService;
+import starter.spring.security.domain.token.service.AccessTokenService;
 import starter.spring.security.domain.token.registration.service.RegistrationTokenService;
 
 import java.util.UUID;
@@ -29,9 +29,9 @@ public abstract class AbstractControllerIntegrationTest {
     static final String PHONE_NO     = "01012344321";
 
     @Autowired
-    PhoneAuthRepository phoneAuthRepository;
+    PhoneAuthenticationRepository phoneAuthenticationRepository;
     @Autowired
-    UserRepository      userRepository;
+    UserRepository                userRepository;
 
     @Autowired
     AuthenticationService    authenticationService;
@@ -46,11 +46,11 @@ public abstract class AbstractControllerIntegrationTest {
     MockMvc      mockMvc;
 
     protected String givenRegistrationToken(PhoneNumber phoneNumber) {
-        UUID authId = authenticationService.createPhoneAuth(phoneNumber);
+        UUID authId = authenticationService.createPhoneAuthentication(phoneNumber);
 
-        PhoneAuth phoneAuth = phoneAuthRepository.findByUuid(authId).get();
-        String verificationCode = phoneAuth.getVerificationCode();
-        authenticationService.verifyPhoneAuth(authId, verificationCode);
+        PhoneAuthentication phoneAuthentication = phoneAuthenticationRepository.findByUuid(authId).get();
+        String verificationCode = phoneAuthentication.getVerificationCode();
+        authenticationService.verifyPhoneAuthentication(authId, verificationCode);
         return registrationTokenService.createRegistrationToken(authId);
     }
 

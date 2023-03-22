@@ -2,6 +2,7 @@
 
 ## Gradle
 ### Spring Security
+> build.gradle
 > ```groovy
 > ...
 > dependencies {
@@ -13,6 +14,7 @@
 > ```
 
 ### JWT
+> build.gradle
 > ```groovy
 > ...
 > dependencies {
@@ -90,7 +92,7 @@
 > [Security WebSecurityConfigurerAdapter Deprecated 해결하기](https://devlog-wjdrbs96.tistory.com/434)
 ---
 
-## HTTP BASIC 를 통한 Security 구현
+## HTTP BASIC 를 통한 인증(Authentication) 구현
 ### Security 설정
 > ```java
 > @Configuration
@@ -124,7 +126,7 @@
 
 ---
 
-## Access token(Json Web Token) 을 통한 Security 구현
+## Access token(Json Web Token) 을 통한 인증(Authentication) 구현
 ### Security 설정
 > ```java
 > @Configuration
@@ -208,3 +210,9 @@
 ### 등록된 FilterChain 확인
 > FilterChainProxy.class 의 doFilter 메서드의 첫 부분에 break point 를 걸고 아무 API 호출을 한다.   
 > debugger 에서 this 아래 filterChains 에서 등록된 SecurityFilterChain 을 확인할 수 있다.
+
+---
+
+## 인가(Authorization) 구현
+### TODO
+> TODO

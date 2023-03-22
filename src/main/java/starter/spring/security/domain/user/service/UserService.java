@@ -17,7 +17,7 @@ public interface UserService {
      *
      * @return userId
      */
-    UUID createUser(PhoneNumber phoneNumber, UserCreateDto createDto);
+    UUID createUser(UUID authenticationToken, UserCreateDto createDto);
 
     /**
      * 회원 ID 조회

@@ -17,8 +17,6 @@ import java.util.UUID;
 public class AccessTokenAuthenticationToken extends AbstractAuthenticationToken {
     private final String    accessToken;
 
-    private       UUID      userId;
-
     protected AccessTokenAuthenticationToken(String accessToken) {
         super(null);
         this.accessToken = accessToken;
@@ -28,25 +26,21 @@ public class AccessTokenAuthenticationToken extends AbstractAuthenticationToken 
         return new AccessTokenAuthenticationToken(accessToken);
     }
 
+    public void passAuthentication() {
+        super.setAuthenticated(true);
+    }
+
+    public boolean hasAccessToken() {
+        return StringUtils.hasText(this.accessToken);
+    }
+
     @Override
     public Object getCredentials() {
-        return this.userId;
+        return this.accessToken;
     }
 
     @Override
     public Object getPrincipal() {
         return this.accessToken;
-    }
-
-    public void passAuthentication() {
-        super.setAuthenticated(true);
-    }
-
-    public void updateUserId(UUID userId) {
-        this.userId = userId;
-    }
-
-    public boolean hasNoPrincipal() {
-        return ObjectUtils.isEmpty(this.getPrincipal());
     }
 }

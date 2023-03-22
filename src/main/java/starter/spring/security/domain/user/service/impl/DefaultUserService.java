@@ -9,7 +9,7 @@ import starter.spring.security.domain.user.repository.UserRepository;
 import starter.spring.security.domain.entity.vo.PhoneNumber;
 import starter.spring.security.domain.user.dto.UserCreateDto;
 import starter.spring.security.domain.user.dto.UserReadDto;
-import starter.spring.security.domain.user.model.User;
+import starter.spring.security.domain.user.entity.User;
 import starter.spring.security.domain.user.service.UserService;
 
 import java.util.UUID;
@@ -26,12 +26,12 @@ public class DefaultUserService implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UUID createUser(PhoneNumber phoneNumber, UserCreateDto createDto) {
-        boolean alreadyExist = userRepository.findByPhoneNumber(phoneNumber).isPresent();
+    public UUID createUser(UUID authenticationToken, UserCreateDto createDto) {
+        boolean alreadyExist = userRepository.findByPhoneNumber(null).isPresent();
         if (alreadyExist) {
             throw new UserAlreadyExistException();
         }
-        User user = userRepository.save(new User(phoneNumber, createDto.getNickname()));
+        User user = userRepository.save(new User(null, createDto.getNickname()));
         return user.getUuid();
     }
 

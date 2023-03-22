@@ -5,7 +5,7 @@ import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import starter.spring.security.domain.authentication.dto.AccessToken;
-import starter.spring.security.domain.token.auth.service.AccessTokenService;
+import starter.spring.security.domain.token.service.AccessTokenService;
 import starter.spring.security.domain.user.service.UserService;
 
 import java.util.UUID;

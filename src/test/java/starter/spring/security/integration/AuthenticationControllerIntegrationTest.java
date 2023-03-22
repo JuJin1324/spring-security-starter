@@ -5,14 +5,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
-import starter.spring.security.domain.user.model.User;
+import starter.spring.security.domain.user.entity.User;
 import starter.spring.security.web.controller.AuthenticationController;
 import starter.spring.security.domain.authentication.dto.AccessToken;
-import starter.spring.security.domain.authentication.dto.PhoneAuthCreateDto;
-import starter.spring.security.domain.authentication.entity.PhoneAuth;
+import starter.spring.security.domain.authentication.dto.PhoneAuthenticationCreateDto;
+import starter.spring.security.domain.authentication.entity.PhoneAuthentication;
 import starter.spring.security.domain.entity.vo.PhoneNumber;
-import starter.spring.security.domain.token.auth.repository.RefreshTokenRepository;
-import starter.spring.security.domain.token.auth.service.AccessTokenService;
+import starter.spring.security.domain.token.repository.RefreshTokenRepository;
+import starter.spring.security.domain.token.service.AccessTokenService;
 
 import java.util.TimeZone;
 import java.util.UUID;
@@ -50,7 +50,7 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
 
     @AfterEach
     void tearDown() {
-        phoneAuthRepository.deleteAll();
+        phoneAuthenticationRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -62,7 +62,7 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
         String phoneNo = PHONE_NO;
 
         /* when */
-        PhoneAuthCreateDto createDto = new PhoneAuthCreateDto(countryCode, phoneNo);
+        PhoneAuthenticationCreateDto createDto = new PhoneAuthenticationCreateDto(countryCode, phoneNo);
         MvcResult result = mockMvc.perform(post(CREATE_PHONE_AUTH_URI)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
@@ -75,11 +75,11 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
                 .readValue(result.getResponse().getContentAsString(), AuthenticationController.CreatePhoneAuthResponse.class);
         UUID authId = response.getAuthId();
 
-        PhoneAuth phoneAuth = phoneAuthRepository.findByUuid(authId).get();
-        PhoneNumber phoneNumber = phoneAuth.getPhoneNumber();
+        PhoneAuthentication phoneAuthentication = phoneAuthenticationRepository.findByUuid(authId).get();
+        PhoneNumber phoneNumber = phoneAuthentication.getPhoneNumber();
         assertEquals(countryCode, phoneNumber.getCountryCode());
         assertEquals(phoneNo, phoneNumber.getPhoneNo());
-        assertFalse(phoneAuth.hasAuthenticated());
+        assertFalse(phoneAuthentication.hasAuthenticated());
     }
 
     @Test
@@ -88,9 +88,9 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
         /* given */
         PhoneNumber phoneNumber = new PhoneNumber(COUNTRY_CODE, PHONE_NO);
 
-        UUID authId = authenticationService.createPhoneAuth(phoneNumber);
-        PhoneAuth phoneAuth = phoneAuthRepository.findByUuid(authId).get();
-        String verificationCode = phoneAuth.getVerificationCode();
+        UUID authId = authenticationService.createPhoneAuthentication(phoneNumber);
+        PhoneAuthentication phoneAuthentication = phoneAuthenticationRepository.findByUuid(authId).get();
+        String verificationCode = phoneAuthentication.getVerificationCode();
 
         /* when */
         AuthenticationController.VerifyPhoneAuthRequest request = new AuthenticationController.VerifyPhoneAuthRequest(authId, verificationCode);
@@ -105,7 +105,7 @@ class AuthenticationControllerIntegrationTest extends AbstractControllerIntegrat
         AuthenticationController.VerifyPhoneAuthResponse response = objectMapper
                 .readValue(result.getResponse().getContentAsString(), AuthenticationController.VerifyPhoneAuthResponse.class);
 
-        UUID authIdFromRegistrationToken = registrationTokenService.getAuthId(response.getRegistrationToken());
+        UUID authIdFromRegistrationToken = registrationTokenService.getAuthId(response.getAuthenticationToken());
         assertEquals(authId, authIdFromRegistrationToken);
     }
 

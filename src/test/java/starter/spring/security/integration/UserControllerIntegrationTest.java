@@ -5,7 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import starter.spring.security.domain.user.dto.UserCreateDto;
 import starter.spring.security.domain.user.dto.UserReadDto;
-import starter.spring.security.domain.user.model.User;
+import starter.spring.security.domain.user.entity.User;
 import starter.spring.security.web.controller.UserController;
 import starter.spring.security.domain.authentication.dto.AccessToken;
 import starter.spring.security.domain.entity.vo.PhoneNumber;
@@ -38,7 +38,7 @@ public class UserControllerIntegrationTest extends AbstractControllerIntegration
 
     @AfterEach
     void tearDown() {
-        phoneAuthRepository.deleteAll();
+        phoneAuthenticationRepository.deleteAll();
         userRepository.deleteAll();
     }
 
