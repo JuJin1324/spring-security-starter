@@ -12,7 +12,6 @@ import starter.spring.security.domain.token.jwt.JsonWebTokenUtils;
 import starter.spring.security.domain.token.repository.RefreshTokenRepository;
 import starter.spring.security.domain.token.service.AccessTokenService;
 
-import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

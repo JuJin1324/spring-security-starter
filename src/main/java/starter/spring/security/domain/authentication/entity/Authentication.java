@@ -41,21 +41,15 @@ public abstract class Authentication extends BaseTimeEntity {
     @Column(name = "verified")
     private Boolean verified;
 
-    @Convert(converter = BooleanConverter.class)
-    @Column(name = "expired")
-    private Boolean expired;
-
     public Authentication(String verificationCode, LocalDateTime expirationTimeUTC) {
         this.verificationCode = verificationCode;
         this.createdTimeUTC = LocalDateTime.now(ZoneId.of("UTC"));
         this.expirationTimeUTC = expirationTimeUTC;
         this.verified = false;
-        this.expired = false;
     }
 
     public boolean hasExpired() {
-        return this.expirationTimeUTC.isBefore(LocalDateTime.now(ZoneId.of("UTC")))
-                || this.expired;
+        return this.expirationTimeUTC.isBefore(LocalDateTime.now(ZoneId.of("UTC")));
     }
 
     public boolean hasMatchedVerificationCode(String verificationCode) {
@@ -64,10 +58,5 @@ public abstract class Authentication extends BaseTimeEntity {
 
     public void passVerification() {
         this.verified = true;
-        this.expired = false;
-    }
-
-    public void expireVerification() {
-        this.expired = true;
     }
 }

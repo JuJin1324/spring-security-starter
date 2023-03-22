@@ -3,6 +3,7 @@ package starter.spring.security.web.security.provider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
@@ -33,8 +34,10 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
         String accessToken = (String) accessTokenAuthenticationToken.getPrincipal();
         try {
             accessTokenService.verifyAccessToken(accessToken);
-        } catch (InvalidAccessTokenException | ExpiredAccessTokenException ex) {
-            throw new BadCredentialsException(ex.getMessage());
+        } catch (InvalidAccessTokenException invalidEx) {
+            throw new BadCredentialsException(invalidEx.getMessage());
+        } catch (ExpiredAccessTokenException expiredEx) {
+            throw new CredentialsExpiredException(expiredEx.getMessage());
         }
 
         accessTokenAuthenticationToken.passAuthentication();

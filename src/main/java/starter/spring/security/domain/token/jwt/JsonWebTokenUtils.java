@@ -38,7 +38,7 @@ public class JsonWebTokenUtils {
     public static String createToken(String secretKey,
                                      String subject,
                                      Map<String, Object> claims,
-                                     @Nullable Integer validMinutes) {
+                                     Integer expirationMinute) {
         if (ObjectUtils.isEmpty(secretKey)) {
             throw new InvalidParameterException("secretKey");
         }
@@ -54,17 +54,15 @@ public class JsonWebTokenUtils {
         headers.put("typ", TOKEN_TYPE);
 
         LocalDateTime nowUTC = LocalDateTime.now(ZoneId.of("UTC"));
+        LocalDateTime expirationTimeUTC = nowUTC.plusMinutes(expirationMinute);
 
         JwtBuilder jwtBuilder = Jwts.builder()
                 .setHeader(headers)
                 .setSubject(subject)
                 .setClaims(claims)
                 .setIssuedAt(Timestamp.from(nowUTC.toInstant(ZoneOffset.UTC)))
+                .setExpiration(Timestamp.valueOf(expirationTimeUTC))
                 .signWith(ENCRYPTION_ALGORITHM, secretKey.getBytes(StandardCharsets.UTF_8));
-        if (validMinutes != null) {
-            LocalDateTime expirationTimeUTC = LocalDateTime.now().plusMinutes(validMinutes);
-            jwtBuilder.setExpiration(Timestamp.valueOf(expirationTimeUTC));
-        }
 
         return jwtBuilder.compact();
     }
