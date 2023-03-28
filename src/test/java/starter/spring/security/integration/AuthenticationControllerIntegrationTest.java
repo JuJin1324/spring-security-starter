@@ -6,11 +6,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import starter.spring.security.domain.user.entity.User;
-import starter.spring.security.web.controller.AuthenticationController;
+import starter.spring.security.domain.authentication.controller.AuthenticationController;
 import starter.spring.security.domain.authentication.dto.AccessToken;
 import starter.spring.security.domain.authentication.dto.PhoneAuthenticationCreateDto;
 import starter.spring.security.domain.authentication.entity.PhoneAuthentication;
-import starter.spring.security.domain.entity.vo.PhoneNumber;
+import starter.spring.security.global.entity.vo.PhoneNumber;
 import starter.spring.security.domain.token.repository.RefreshTokenRepository;
 import starter.spring.security.domain.token.service.AccessTokenService;
 

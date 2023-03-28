@@ -2,7 +2,7 @@ package starter.spring.security.domain.authentication.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import starter.spring.security.domain.entity.vo.PhoneNumber;
+import starter.spring.security.global.entity.vo.PhoneNumber;
 
 import javax.validation.constraints.NotBlank;
 

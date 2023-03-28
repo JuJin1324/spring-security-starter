@@ -11,7 +11,7 @@ import starter.spring.security.domain.user.entity.User;
 import starter.spring.security.domain.user.repository.UserRepository;
 import starter.spring.security.domain.authentication.dto.AccessToken;
 import starter.spring.security.domain.authentication.entity.PhoneAuthentication;
-import starter.spring.security.domain.entity.vo.PhoneNumber;
+import starter.spring.security.global.entity.vo.PhoneNumber;
 import starter.spring.security.domain.token.service.AccessTokenService;
 import starter.spring.security.domain.token.registration.service.RegistrationTokenService;
 

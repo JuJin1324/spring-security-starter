@@ -3,9 +3,8 @@ package starter.spring.security.domain.token.entity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.ObjectUtils;
-import starter.spring.security.domain.entity.BaseTimeEntity;
-import starter.spring.security.domain.entity.converter.BooleanConverter;
+import starter.spring.security.global.entity.BaseTimeEntity;
+import starter.spring.security.global.entity.converter.BooleanConverter;
 import starter.spring.security.domain.user.entity.User;
 
 import javax.persistence.*;

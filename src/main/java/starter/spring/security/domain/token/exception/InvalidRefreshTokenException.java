@@ -1,6 +1,6 @@
 package starter.spring.security.domain.token.exception;
 
-import starter.spring.security.exception.UnauthorizedException;
+import starter.spring.security.global.exception.UnauthorizedException;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)

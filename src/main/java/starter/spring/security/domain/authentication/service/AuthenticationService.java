@@ -1,6 +1,6 @@
 package starter.spring.security.domain.authentication.service;
 
-import starter.spring.security.domain.entity.vo.PhoneNumber;
+import starter.spring.security.global.entity.vo.PhoneNumber;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)

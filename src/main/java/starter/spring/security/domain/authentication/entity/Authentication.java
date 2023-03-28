@@ -3,8 +3,8 @@ package starter.spring.security.domain.authentication.entity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import starter.spring.security.domain.entity.BaseTimeEntity;
-import starter.spring.security.domain.entity.converter.BooleanConverter;
+import starter.spring.security.global.entity.BaseTimeEntity;
+import starter.spring.security.global.entity.converter.BooleanConverter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;

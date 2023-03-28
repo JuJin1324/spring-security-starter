@@ -4,8 +4,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import starter.spring.security.domain.authentication.entity.PhoneAuthentication;
-import starter.spring.security.domain.entity.repository.CommonRepository;
-import starter.spring.security.domain.entity.vo.PhoneNumber;
+import starter.spring.security.global.entity.repository.CommonRepository;
+import starter.spring.security.global.entity.vo.PhoneNumber;
 
 import java.time.LocalDateTime;
 import java.util.List;

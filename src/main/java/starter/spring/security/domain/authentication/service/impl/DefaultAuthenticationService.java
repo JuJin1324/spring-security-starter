@@ -7,7 +7,7 @@ import starter.spring.security.domain.authentication.entity.PhoneAuthentication;
 import starter.spring.security.domain.authentication.exception.PhoneAuthNotFoundException;
 import starter.spring.security.domain.authentication.repository.PhoneAuthenticationRepository;
 import starter.spring.security.domain.authentication.service.AuthenticationService;
-import starter.spring.security.domain.entity.vo.PhoneNumber;
+import starter.spring.security.global.entity.vo.PhoneNumber;
 
 import java.time.*;
 import java.util.List;

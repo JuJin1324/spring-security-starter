@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import starter.spring.security.domain.user.exception.UserAlreadyExistException;
 import starter.spring.security.domain.user.exception.UserNotFoundException;
 import starter.spring.security.domain.user.repository.UserRepository;
-import starter.spring.security.domain.entity.vo.PhoneNumber;
 import starter.spring.security.domain.user.dto.UserCreateDto;
 import starter.spring.security.domain.user.dto.UserReadDto;
 import starter.spring.security.domain.user.entity.User;

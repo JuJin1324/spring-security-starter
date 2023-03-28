@@ -3,7 +3,7 @@ package starter.spring.security.domain.authentication.entity;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import starter.spring.security.domain.entity.vo.PhoneNumber;
+import starter.spring.security.global.entity.vo.PhoneNumber;
 
 import javax.persistence.DiscriminatorValue;
 import javax.persistence.Embedded;

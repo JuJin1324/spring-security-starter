@@ -6,9 +6,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import starter.spring.security.domain.user.dto.UserCreateDto;
 import starter.spring.security.domain.user.dto.UserReadDto;
 import starter.spring.security.domain.user.entity.User;
-import starter.spring.security.web.controller.UserController;
+import starter.spring.security.domain.user.controller.UserController;
 import starter.spring.security.domain.authentication.dto.AccessToken;
-import starter.spring.security.domain.entity.vo.PhoneNumber;
+import starter.spring.security.global.entity.vo.PhoneNumber;
 
 import java.util.TimeZone;
 import java.util.UUID;

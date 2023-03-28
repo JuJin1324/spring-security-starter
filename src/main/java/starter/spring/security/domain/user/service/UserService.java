@@ -1,6 +1,5 @@
 package starter.spring.security.domain.user.service;
 
-import starter.spring.security.domain.entity.vo.PhoneNumber;
 import starter.spring.security.domain.user.dto.UserCreateDto;
 import starter.spring.security.domain.user.dto.UserReadDto;
 

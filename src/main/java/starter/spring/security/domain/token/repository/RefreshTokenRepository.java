@@ -2,7 +2,7 @@ package starter.spring.security.domain.token.repository;
 
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import starter.spring.security.domain.entity.repository.CommonRepository;
+import starter.spring.security.global.entity.repository.CommonRepository;
 import starter.spring.security.domain.token.entity.RefreshToken;
 
 import java.util.Optional;
