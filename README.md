@@ -69,7 +69,7 @@
 > 를 통해서 SecurityContext 에 담으면 필터를 지나고 지나서 마지막 필터인 FilterSecurityInterceptor 에 도착하고 여기서 `AuthenticationManager` 를 
 > 구현한 `ProviderManager` 를 통해서 실제 인증 로직이 진행된다.  
 > 
-> ProviderManager 에 사용자 커스텀 인증 로직을 담은 Provider 만들어 등록한다.
+> ProviderManager 에 사용자 커스텀 인증 로직을 담은 Provider 를 만들어 등록한다.
 > 그러면 요청이 필터를 거쳐 마지막 필터인 FilterSecurityInterceptor 에 도착하고 여기서 ProviderManager 가 사용자가 등록한 커스텀 Provider 를 사용하여
 > 인증을 진행하게 된다.  
 
@@ -99,11 +99,13 @@
 > @EnableWebSecurity
 > @RequiredArgsConstructor
 > public class SecurityConfig {
->     ...
->
-> @Bean
-> @Order(1)
-> public SecurityFilterChain monitoringFilterChain(HttpSecurity http) throws Exception {
+>    ...
+>    // monitoring API 호출에 대한 인증을 위해서 사용자가 생성한 커스텀 Provider
+>    private final MonitoringAuthenticationProvider  monitoringAuthenticationProvider;
+> 
+>    @Bean
+>    @Order(1)
+>    public SecurityFilterChain monitoringFilterChain(HttpSecurity http) throws Exception {
 >         http.antMatcher("/basics/**")  // antMatchers 가 아닌 antMatcher 로 현재 설정이 적용될 도메인 URI 를 설정한다. 이 외의 URI 에는 설정이 적용되지 않는다.
 >               .authorizeRequests()             
 >               .antMatchers("/basics/permits/**").permitAll()        // 해당 도메인 URI 의 요청은 모두 인증을 건너뜀
@@ -114,10 +116,10 @@
 >                                                     // 예시처럼 Application 의 Monitoring 에 해당하는 정보만 열람이 가능하다는 표시  
 >               .and()
 >               .authenticationProvider(monitoringAuthenticationProvider)  // 인증 로직을 담은 커스텀 Provider 클래스 등록
->               .csrf().disable();           // csrf disable 
+>               .csrf().disable();           // 세션을 통한 인증이 아니기 때문에 csrf 는 disable 한다.
 > 
 >         return http.build();
->     }
+>    }
 > }
 > ```
 
@@ -134,7 +136,11 @@
 > @RequiredArgsConstructor
 > public class SecurityConfig {
 >     ...
->     
+>     // access token 을 사용한 인증을 위해서 사용자가 생성한 커스텀 filter
+>     private final AccessTokenAuthenticationFilter   accessTokenAuthenticationFilter;
+>     // access token 을 사용한 인증을 위해서 사용자가 생성한 커스텀 Provider
+>     private final AccessTokenAuthenticationProvider accessTokenAuthenticationProvider;    
+> 
 >     @Bean
 >     public SecurityFilterChain mainFilterChain(HttpSecurity http) throws Exception {
 >         AccessTokenAuthenticationFilter accessTokenAuthenticationFilter = new AccessTokenAuthenticationFilter();
@@ -151,7 +157,7 @@
 >                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)   // 세션을 사용하지 않는다고 설정한다.
 >                 .and()
 >                 .authenticationProvider(accessTokenAuthenticationProvider)    // 인증 로직을 담은 AccessTokenAuthenticationProvider 를 등록한다. 
->                 .csrf().disable();
+>                 .csrf().disable();    // 세션을 통한 인증이 아니기 때문에 csrf 는 disable 한다.
 > 
 >         return http.build();
 >     }

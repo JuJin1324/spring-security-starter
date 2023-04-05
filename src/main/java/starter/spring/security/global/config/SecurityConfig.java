@@ -22,13 +22,12 @@ import starter.spring.security.global.security.provider.MonitoringAuthentication
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
+    private final AccessTokenAuthenticationFilter   accessTokenAuthenticationFilter;
     private final AccessTokenAuthenticationProvider accessTokenAuthenticationProvider;
     private final MonitoringAuthenticationProvider  monitoringAuthenticationProvider;
 
     @Bean
     public SecurityFilterChain mainFilterChain(HttpSecurity http) throws Exception {
-        AccessTokenAuthenticationFilter accessTokenAuthenticationFilter = new AccessTokenAuthenticationFilter();
-
         http.authorizeRequests()
                 .anyRequest().authenticated()
                 .antMatchers(
