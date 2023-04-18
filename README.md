@@ -59,7 +59,7 @@
 > 요청을 보낸다.  
 > 
 > 만약 사용자가 만든 커스텀 인증 필터에서 예외를 throw 하고 싶은 경우 해당 예외를 응답으로 처리해줄 커스텀 인증 예외처리 필터를 함께 만들어서 커스텀 인증 필터 앞에 등록해야한다.  
-> 허나 인증 필터는 요청으로 들어온 인증 정보를 `Authentication` 객체로 변환하는 것이 주 임무임으로 예외를 throw 하는 대신에 authentication 객체의 멤버 변수가 모두 null 로 만들거나
+> 허나 인증 필터는 요청으로 들어온 인증 정보를 `Authentication` 객체로 변환하는 것이 주 임무임으로 예외를 throw 하는 대신에 authentication 객체의 멤버 변수를 모두 null 로 만들거나
 > 커스텀 authentication 객체를 생성하여 에러 정보를 담아 마지막 필터인 FilterSecurityInterceptor 까지 요청을 전달 후에 실제 인증 로직이 담긴 커스텀 Provider 객체에서
 > 예외를 던지도록 하는 것이 나아보인다. Provider 를 호출하는 ProviderManager 에서 처리해주는 예외는 `AuthenticationException` 를 상속한 예외만 처리해주니
 > Provider 에서 예외를 던지려는 경우 `AuthenticationException` 를 상속하여 커스텀 예외를 던지거나 Spring security 에서 제공되는 예외를 던지도록 하자.  
