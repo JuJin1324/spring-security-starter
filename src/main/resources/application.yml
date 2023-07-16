@@ -38,5 +38,4 @@ management:
             enabled: true
 
 token:
-    access:
-        secretkey: AccessTokenSecretKey-local
+    access.jwt.secretkey: AccessTokenSecretKey-local

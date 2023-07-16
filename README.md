@@ -100,8 +100,8 @@
 > @RequiredArgsConstructor
 > public class SecurityConfig {
 >    ...
->    // monitoring API 호출에 대한 인증을 위해서 사용자가 생성한 커스텀 Provider
->    private final MonitoringAuthenticationProvider  monitoringAuthenticationProvider;
+>    // HTTP Basic 인증을 위해서 사용자가 생성한 커스텀 Provider
+>    private final HttpBasicAuthenticationProvider httpBasicAuthenticationProvider;
 > 
 >    @Bean
 >    @Order(1)
@@ -115,7 +115,7 @@
 >               .realmName("Application Monitoring")    // realm은 아래와 같이 해설 형식으로 구성되어 사용자가 권한에 대한 범위를 이해하는 데 도움이 되어야 합니다. 
 >                                                     // 예시처럼 Application 의 Monitoring 에 해당하는 정보만 열람이 가능하다는 표시  
 >               .and()
->               .authenticationProvider(monitoringAuthenticationProvider)  // 인증 로직을 담은 커스텀 Provider 클래스 등록
+>               .authenticationProvider(httpBasicAuthenticationProvider)  // 인증 로직을 담은 커스텀 Provider 클래스 등록
 >               .csrf().disable();           // 세션을 통한 인증이 아니기 때문에 csrf 는 disable 한다.
 > 
 >         return http.build();
@@ -128,7 +128,7 @@
 
 ---
 
-## Access token(Json Web Token) 을 통한 인증(Authentication) 구현
+## Bearer token 을 통한 인증(Authentication) 구현
 ### Security 설정
 > ```java
 > @Configuration
@@ -136,24 +136,20 @@
 > @RequiredArgsConstructor
 > public class SecurityConfig {
 >     ...
->     // access token 을 사용한 인증을 위해서 사용자가 생성한 커스텀 filter
->     private final AccessTokenAuthenticationFilter   accessTokenAuthenticationFilter;
->     // access token 을 사용한 인증을 위해서 사용자가 생성한 커스텀 Provider
+>     // bearer token 을 사용한 인증을 위해서 사용자가 생성한 커스텀 filter
+>     private final BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter;
+>     // bearer token 을 사용한 인증을 위해서 사용자가 생성한 커스텀 Provider
 >     private final AccessTokenAuthenticationProvider accessTokenAuthenticationProvider;    
 > 
 >     @Bean
 >     public SecurityFilterChain mainFilterChain(HttpSecurity http) throws Exception {
->         AccessTokenAuthenticationFilter accessTokenAuthenticationFilter = new AccessTokenAuthenticationFilter();
->         // UnauthorizedExceptionFilter unauthorizedExceptionFilter = new UnauthorizedExceptionFilter(objectMapper);
 >
 >         http.authorizeRequests()
 >                 .anyRequest().authenticated()     // 모든 요청에 인증이 요구된다.
 >                 .antMatchers("/authentications/phone/**").permitAll()  // 해당 URI 의 요청에는 인증이 요구되지 않는다. 
 >                 .and()
->                 // accessTokenAuthenticationFilter 필터를 UsernamePasswordAuthenticationFilter 앞에 둔다.
->                 .addFilterBefore(accessTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
->                 // [사용 안함] unauthorizedExceptionFilter 필터를 accessTokenAuthenticationFilter 앞에 둔다.      
->                 //.addFilterBefore(unauthorizedExceptionFilter, AccessTokenAuthenticationFilter.class)
+>                 // bearerTokenAuthenticationFilter 필터를 UsernamePasswordAuthenticationFilter 앞에 둔다.
+>                 .addFilterBefore(bearerTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 >                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)   // 세션을 사용하지 않는다고 설정한다.
 >                 .and()
 >                 .authenticationProvider(accessTokenAuthenticationProvider)    // 인증 로직을 담은 AccessTokenAuthenticationProvider 를 등록한다. 
@@ -164,9 +160,29 @@
 > }
 > ```
 
-### AccessTokenAuthenticationFilter
-> Header 의 문자열 인증 정보를 Authentication 객체로 변환하여 SecurityContext 에 등록한다.  
-> 별도의 예외 처리는 하지 않으며 문자열 인증 정보가 null 인 경우 그에 맞는 예외를 담은 Authentication 객체를 만들어서 SecurityContext 에 등록한다.     
+### BearerTokenAuthenticationFilter
+> ```java
+> @Component
+> public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
+> 
+>     @Override
+>     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+>         SecurityContextHolder.getContext().setAuthentication(getAuthentication(request));
+>         filterChain.doFilter(request, response);
+>     }
+> 
+>     private Authentication getAuthentication(HttpServletRequest request) {
+>         String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
+>         try {
+>             return AccessTokenAuthenticationToken.of(new BearerToken(auth).getValue());
+>         } catch (InvalidBearerTokenException e) {
+>             return AccessTokenAuthenticationToken.emptyToken();
+>         }
+>     }
+> }
+> ```
+> Header 의 Bearer 토큰 값을 추출하여 Authentication 객체를 생성한 후에 해당 객체를 SecurityContext 에 등록한다.  
+> 예외는 throw 하지 않으며 Bearer 토큰 값이 유효하지 않아 예외가 발생한 경우 try/catch 를 통해 그에 맞는 Authentication 객체를 만들어서 SecurityContext 에 등록한다.     
 
 ### [사용 안함] UnauthorizedExceptionFilter
 > `JwtAuthenticationFilter` 에서 인증에 실패하여 UnauthorizedException 이 발생한 경우 예외를 Response 에 담아서 반환한다.    
@@ -175,7 +191,43 @@
 > 그래서 UnauthorizedExceptionFilter 는 더이상 사용하지 않는다.
 
 ### AccessTokenAuthenticationProvider
-> AccessTokenAuthenticationFilter 에서 변환하여 SecurityContext 에 등록한 Authentication 객체를 가지고 해당 인증 객체가 유효한지 검증한다.  
+> ```java
+> @Component
+> @RequiredArgsConstructor
+> public class AccessTokenAuthenticationProvider implements AuthenticationProvider {
+>     private final ParseAccessTokenUseCase parseAccessTokenUseCase;
+> 
+>     @Override
+>     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+>         AccessAuthenticationToken accessAuthenticationToken = (AccessAuthenticationToken) authentication;
+>         if (accessAuthenticationToken.isEmptyToken()) {
+>             throw new BadCredentialsException("Has no access token.");
+>         }
+> 
+>         AccessToken accessToken = getAccessToken(accessAuthenticationToken);
+>         accessAuthenticationToken.passAuthentication(accessToken);
+> 
+>         return authentication;
+>     }
+> 
+>     @Override
+>     public boolean supports(Class<?> authentication) {
+>         return AccessAuthenticationToken.class.isAssignableFrom(authentication);
+>     }
+> 
+>     private AccessToken getAccessToken(AccessAuthenticationToken accessAuthenticationToken) {
+>         String token = accessAuthenticationToken.getBearerToken().getValue();
+>         try {
+>             return parseAccessTokenUseCase.parse(token);
+>         } catch (ExpiredAccessTokenException e) {
+>             throw new CredentialsExpiredException(e.getMessage());
+>         } catch (InvalidAccessTokenException e) {
+>             throw new BadCredentialsException(e.getMessage());
+>         }
+>     }
+> }
+> ```
+> BearerTokenAuthenticationFilter 에서 변환하여 SecurityContext 에 등록한 Authentication 객체를 가지고 해당 인증 객체가 유효한지 검증한다.  
 > 예외 발생 시 예외를 던진다. 하지만 예외는 AuthenticationException 을 상속받은 예외만 처리가 가능하다.  
 
 ---
@@ -191,7 +243,7 @@
 >     ...
 > 
 >     @Bean
->     public SecurityFilterChain mainFilterChain(HttpSecurity http) throws Exception {
+>     public SecurityFilterChain bearerTokenFilterChain(HttpSecurity http) throws Exception {
 >         http.authorizeRequests()
 >             ...;
 > 
@@ -200,7 +252,7 @@
 > 
 >     @Bean
 >     @Order(1)
->     public SecurityFilterChain monitoringFilterChain(HttpSecurity http) throws Exception {
+>     public SecurityFilterChain httpBasicFilterChain(HttpSecurity http) throws Exception {
 >         http.antMatcher("/actuator/**")    // 현재 SecurityFilterChain 은 /actuator 아래 URI API 를 호출 시에만 적용된다.
 >                                            // 다른 URI 의 API 호출 시에는 mainFilterChain 에서 생성한 SecurityFilterChain 이 적용된다. 
 >             .authorizeRequests()
@@ -211,7 +263,7 @@
 > }
 > ```
 > `http.antMatcher()`(antMatchers 아님) 에 해당 SecurityFilterChain 을 이용할 URI 를 지정할 수 있다.   
-> 여기서는 '/actuator' 로 시작하는 URI 은 Http Basic Authentication 을 이용하고, 나머지는 Json Web Token 을 이용하도록 설정하였다.
+> 여기서는 '/actuator' 로 시작하는 URI 은 Http Basic Authentication 을 이용하고, 나머지는 Bearer Token 을 이용하도록 설정하였다.
 
 ### 등록된 FilterChain 확인
 > FilterChainProxy.class 의 doFilter 메서드의 첫 부분에 break point 를 걸고 아무 API 호출을 한다.   

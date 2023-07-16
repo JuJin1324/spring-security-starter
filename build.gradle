@@ -34,12 +34,19 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'mysql:mysql-connector-java:8.0.31'
+
+    compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
-    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+    runtimeOnly 'mysql:mysql-connector-java:8.0.31'
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.8.0'
+
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'

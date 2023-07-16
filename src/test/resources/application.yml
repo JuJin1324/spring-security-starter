@@ -45,8 +45,4 @@ logging:
         com.zaxxer.hikari.pool.HikariPool: debug
 
 token:
-    registration:
-        secretkey: RegistrationTokenSecretKey-test
-    auth:
-        access.secretkey: AccessTokenSecretKey-local
-        refresh.secretkey: RefreshTokenSecretKey-local
+    access.jwt.secretkey: AccessTokenSecretKey-test
