@@ -136,9 +136,9 @@
 > @RequiredArgsConstructor
 > public class SecurityConfig {
 >     ...
->     // bearer token 을 사용한 인증을 위해서 사용자가 생성한 커스텀 filter
+>     // bearer token 을 사용한 요청에서 인증 정보를 추출하기 위해서 사용자가 생성한 커스텀 filter
 >     private final BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter;
->     // bearer token 을 사용한 인증을 위해서 사용자가 생성한 커스텀 Provider
+>     // access token 을 사용한 요청에서 인증 정보를 검증하기 위해서 사용자가 생성한 커스텀 Provider
 >     private final AccessTokenAuthenticationProvider accessTokenAuthenticationProvider;    
 > 
 >     @Bean
@@ -172,17 +172,18 @@
 >     }
 > 
 >     private Authentication getAuthentication(HttpServletRequest request) {
->         String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
+>         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
 >         try {
->             return AccessTokenAuthenticationToken.of(new BearerToken(auth).getValue());
+>             return BearerAuthenticationToken.of(new BearerToken(authHeader));
 >         } catch (InvalidBearerTokenException e) {
->             return AccessTokenAuthenticationToken.emptyToken();
+>             return BearerAuthenticationToken.emptyToken();
 >         }
 >     }
 > }
 > ```
 > Header 의 Bearer 토큰 값을 추출하여 Authentication 객체를 생성한 후에 해당 객체를 SecurityContext 에 등록한다.  
-> 예외는 throw 하지 않으며 Bearer 토큰 값이 유효하지 않아 예외가 발생한 경우 try/catch 를 통해 그에 맞는 Authentication 객체를 만들어서 SecurityContext 에 등록한다.     
+> 예외는 throw 하지 않으며 Bearer 토큰 값이 유효하지 않아 예외가 발생한 경우 try/catch 를 통해 그에 맞는 Authentication 객체를 만들어서 
+> SecurityContext 에 등록한다.     
 
 ### [사용 안함] UnauthorizedExceptionFilter
 > `JwtAuthenticationFilter` 에서 인증에 실패하여 UnauthorizedException 이 발생한 경우 예외를 Response 에 담아서 반환한다.    
@@ -199,15 +200,11 @@
 > 
 >     @Override
 >     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
->         AccessAuthenticationToken accessAuthenticationToken = (AccessAuthenticationToken) authentication;
->         if (accessAuthenticationToken.isEmptyToken()) {
->             throw new BadCredentialsException("Has no access token.");
->         }
+>         BearerAuthenticationToken bearerAuthenticationToken = (BearerAuthenticationToken) authentication;
+>         BearerToken bearerToken = (BearerToken) bearerAuthenticationToken.getCredentials();
+>         AccessToken accessToken = parse(bearerToken);
 > 
->         AccessToken accessToken = getAccessToken(accessAuthenticationToken);
->         accessAuthenticationToken.passAuthentication(accessToken);
-> 
->         return authentication;
+>         return new AccessAuthenticationToken(accessToken);
 >     }
 > 
 >     @Override
@@ -215,10 +212,9 @@
 >         return AccessAuthenticationToken.class.isAssignableFrom(authentication);
 >     }
 > 
->     private AccessToken getAccessToken(AccessAuthenticationToken accessAuthenticationToken) {
->         String token = accessAuthenticationToken.getBearerToken().getValue();
+>     private AccessToken parse(BearerToken bearerToken) {
 >         try {
->             return parseAccessTokenUseCase.parse(token);
+>             return parseAccessTokenUseCase.parse(bearerToken.getValue());
 >         } catch (ExpiredAccessTokenException e) {
 >             throw new CredentialsExpiredException(e.getMessage());
 >         } catch (InvalidAccessTokenException e) {
@@ -227,8 +223,11 @@
 >     }
 > }
 > ```
-> BearerTokenAuthenticationFilter 에서 변환하여 SecurityContext 에 등록한 Authentication 객체를 가지고 해당 인증 객체가 유효한지 검증한다.  
-> 예외 발생 시 예외를 던진다. 하지만 예외는 AuthenticationException 을 상속받은 예외만 처리가 가능하다.  
+> BearerTokenAuthenticationFilter 에서 추출한 BearerToken 을 AccessToken 으로 변환하여 
+> 변환이 정상적으로 동작하는지를 통해 검증한다. 변환 도중에 예외 발생 시 예외를 던진다.  
+> 또한 bearerAuthenticationToken.getCredentials() 를 통해서 bearerAuthenticationToken 가 emptyToken(빈 토큰)인 경우 예외를 던지도록
+> 하였다.  
+> 예외는 AuthenticationException 을 상속받은 예외만 처리가 가능하다.    
 
 ---
 

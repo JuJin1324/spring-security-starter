@@ -11,7 +11,8 @@ import starter.spring.security.accesstoken.application.domain.AccessToken;
 import starter.spring.security.accesstoken.application.port.in.ParseAccessTokenUseCase;
 import starter.spring.security.accesstoken.application.port.out.ExpiredAccessTokenException;
 import starter.spring.security.accesstoken.application.port.out.InvalidAccessTokenException;
-import starter.spring.security.springconfig.security.AccessAuthenticationToken;
+import starter.spring.security.springconfig.security.BearerAuthenticationToken;
+import starter.spring.security.springconfig.security.BearerToken;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)
@@ -25,15 +26,11 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        AccessAuthenticationToken accessAuthenticationToken = (AccessAuthenticationToken) authentication;
-        if (accessAuthenticationToken.isEmptyToken()) {
-            throw new BadCredentialsException("Has no access token.");
-        }
+        BearerAuthenticationToken bearerAuthenticationToken = (BearerAuthenticationToken) authentication;
+        BearerToken bearerToken = (BearerToken) bearerAuthenticationToken.getCredentials();
+        AccessToken accessToken = parse(bearerToken);
 
-        AccessToken accessToken = getAccessToken(accessAuthenticationToken);
-        accessAuthenticationToken.passAuthentication(accessToken);
-
-        return authentication;
+        return new AccessAuthenticationToken(accessToken);
     }
 
     @Override
@@ -41,10 +38,9 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
         return AccessAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-    private AccessToken getAccessToken(AccessAuthenticationToken accessAuthenticationToken) {
-        String token = accessAuthenticationToken.getBearerToken().getValue();
+    private AccessToken parse(BearerToken bearerToken) {
         try {
-            return parseAccessTokenUseCase.parse(token);
+            return parseAccessTokenUseCase.parse(bearerToken.getValue());
         } catch (ExpiredAccessTokenException e) {
             throw new CredentialsExpiredException(e.getMessage());
         } catch (InvalidAccessTokenException e) {

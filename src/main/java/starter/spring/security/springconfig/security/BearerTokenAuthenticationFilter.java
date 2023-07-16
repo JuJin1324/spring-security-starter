@@ -29,9 +29,9 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
     private Authentication getAuthentication(HttpServletRequest request) {
         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         try {
-            return AccessAuthenticationToken.of(new BearerToken(authHeader));
+            return BearerAuthenticationToken.of(new BearerToken(authHeader));
         } catch (InvalidBearerTokenException e) {
-            return AccessAuthenticationToken.emptyToken();
+            return BearerAuthenticationToken.emptyToken();
         }
     }
 }
