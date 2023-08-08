@@ -123,6 +123,49 @@
 > }
 > ```
 
+### HttpBasicAuthenticationProvider
+> ```java
+> @Component
+> public class HttpBasicAuthenticationProvider implements AuthenticationProvider {
+> 
+>     @Override
+>     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+>         String username = authentication.getName();
+>         String password = authentication.getCredentials().toString();
+> 
+>         UserDetails userDetails = isValidUser(username, password);
+> 
+>         if (userDetails != null) {
+>             return new UsernamePasswordAuthenticationToken(
+>                     username,
+>                     password,
+>                     userDetails.getAuthorities());
+>         } else {
+>             throw new BadCredentialsException("Incorrect user credentials !!");
+>         }
+>     }
+> 
+>     @Override
+>     public boolean supports(Class<?> authenticationType) {
+>         return authenticationType
+>                 .equals(UsernamePasswordAuthenticationToken.class);
+>     }
+> 
+>     private UserDetails isValidUser(String username, String password) {
+>         if (username.equals("admin") && password.equals("1234")) {
+>             return User
+>                     .withUsername(username)
+>                     .password("NOT_DISCLOSED")
+>                     .roles("ADMIN")
+>                     .build();
+>         }
+>         return null;
+>     }
+> }
+> ```
+> authentication 객체에서 username 과 password 를 추출하여 isValidUser 메서드를 호출한다.    
+> isValidUser 메서드에 amdin/1234 를 하드코딩하여 유효한 로그인 정보인지를 판별하였다.  
+
 ### 참조사이트
 > [HTTP basic auth란? - (인증 방식 4단계 / Hand-Shaking / 보안 / realm)](https://blog.naver.com/PostView.naver?blogId=asd7005201&logNo=222446348947&parentCategoryNo=&categoryNo=23&viewDate=&isShowPopularPosts=true&from=search)
 
