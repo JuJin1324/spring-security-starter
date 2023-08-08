@@ -228,6 +228,34 @@
 > 예외는 throw 하지 않으며 Bearer 토큰 값이 유효하지 않아 예외가 발생한 경우 try/catch 를 통해 그에 맞는 Authentication 객체를 만들어서 
 > SecurityContext 에 등록한다.     
 
+### BearerToken
+> ```java
+> @Getter
+> public class BearerToken {
+> private static final String TOKEN_PREFIX = "Bearer ";
+> private final String value;
+> 
+>     public BearerToken(String value) {
+>         validate(value);
+>         this.value = extractValue(value);
+>     }
+> 
+>     private void validate(String value) {
+>         if (isEmptyString(value) || !value.startsWith(TOKEN_PREFIX)) {
+>             throw new InvalidBearerTokenException();
+>         }
+>     }
+> 
+>     private String extractValue(String bearerToken) {
+>         return bearerToken.substring(TOKEN_PREFIX.length());
+>     }
+> 
+>     private boolean isEmptyString(String value) {
+>         return value == null || value.isBlank();
+>     }
+> }
+> ```
+
 ### [사용 안함] UnauthorizedExceptionFilter
 > `JwtAuthenticationFilter` 에서 인증에 실패하여 UnauthorizedException 이 발생한 경우 예외를 Response 에 담아서 반환한다.    
 > Filter 의 호출 규칙에 따라서 `JwtAuthenticationFilter` 앞에 호출되도록 한다.  
