@@ -225,8 +225,8 @@
 > }
 > ```
 > Header 의 Bearer 토큰 값을 추출하여 Authentication 객체를 생성한 후에 해당 객체를 SecurityContext 에 등록한다.  
-> 예외는 throw 하지 않으며 Bearer 토큰 값이 유효하지 않아 예외가 발생한 경우 try/catch 를 통해 그에 맞는 Authentication 객체를 만들어서 
-> SecurityContext 에 등록한다.     
+> InvalidBearerTokenException 예외는 다시 throw 하지 않고 그에 맞는 Authentication 객체(BearerAuthenticationToken.emptyToken())를 
+> 만들어서 SecurityContext 에 등록한다.     
 
 ### BearerToken
 > ```java
@@ -299,6 +299,47 @@
 > 또한 bearerAuthenticationToken.getCredentials() 를 통해서 bearerAuthenticationToken 가 emptyToken(빈 토큰)인 경우 예외를 던지도록
 > 하였다.  
 > 예외는 AuthenticationException 을 상속받은 예외만 처리가 가능하다.    
+
+### BearerAuthenticationToken
+> ```java
+> public class BearerAuthenticationToken extends AbstractAuthenticationToken {
+>     private final BearerToken bearerToken;
+> 
+>     protected BearerAuthenticationToken(BearerToken bearerToken) {
+>         super(null);
+>         this.bearerToken = bearerToken;
+>     }
+> 
+>     public static BearerAuthenticationToken of(BearerToken value) {
+>         return new BearerAuthenticationToken(value);
+>     }
+> 
+>     public static BearerAuthenticationToken emptyToken() {
+>         return new BearerAuthenticationToken(null);
+>     }
+> 
+>     private boolean isEmptyToken() {
+>         return ObjectUtils.isEmpty(this.bearerToken);
+>     }
+> 
+>     private BearerToken getBearerToken() {
+>         if (this.isEmptyToken()) {
+>             throw new BadCredentialsException("Has no access token.");
+>         }
+>         return bearerToken;
+>     }
+> 
+>     @Override
+>     public Object getCredentials() {
+>         return getBearerToken();
+>     }
+> 
+>     @Override
+>     public Object getPrincipal() {
+>         return getBearerToken();
+>     }
+> }
+> ```
 
 ---
 
