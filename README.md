@@ -382,6 +382,91 @@
 
 ---
 
+## Form Login 을 통한 인증(Authentication) 구현
+### Security 설정
+> SecurityConfig.java
+> ```java
+> @Configuration
+> @EnableWebSecurity
+> public class SecurityConfig {
+>     @Bean
+>     public PasswordEncoder passwordEncoder() {
+>         return new BCryptPasswordEncoder();
+>     }
+> 
+>     @Bean
+>     public UserDetailsService userDetailsService() {
+>         return new CustomUserDetailService(passwordEncoder());
+>     }
+> 
+>     @Bean
+>     public DaoAuthenticationProvider daoAuthenticationProvider() {
+>         var provider = new DaoAuthenticationProvider();
+>         provider.setPasswordEncoder(passwordEncoder());
+>         provider.setUserDetailsService(userDetailsService());
+> 
+>         return provider;
+>     }
+> 
+>     @Bean
+>     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+>         http.authorizeRequests()
+>                 // GET /login 은 인증없는 접근을 허가한다. 
+>                 .antMatchers(GET, "/login").permitAll()
+>                 .anyRequest().authenticated()
+>                 .and()
+>                 // 로그인으로 Form Login 을 사용한다.
+>                 .formLogin()
+>                 // 로그인 페이지의 URL 을 입력한다.
+>                 .loginPage("/login")
+>                 // 로그인 프로세스의 URL 을 입력한다. 이 URL 은 직접 구현하는 것이 아닌 Spring Security 에서 처리하며, 
+>                 // 위의 로그인 페이지에서 <form> 태그에 POST 로 submit 할 URL 을 지정하는 것이다. 
+>                 .loginProcessingUrl("/login")
+>                 // 로그인이 성공하면 리다이렉트할 페이지의 URL 을 입력한다.
+>                 .defaultSuccessUrl("/home")
+>                 .and()
+>                 .logout()
+>                 // 로그아웃의 URL 을 입력한다. 이 URL 은 직접 구현하는 것이 아닌 Spring Security 에서 처리한다.
+>                 .logoutUrl("/logout")
+>                 // 로그아웃 시 세션을 제거한다.
+>                 .invalidateHttpSession(true)
+>                 // 로그아웃 시 쿠키를 제거한다. 여기서는 스프링 세션인 JSESSIONID 를 제거한다.
+>                 .deleteCookies("JSESSIONID");
+> 
+>             return http.build();
+>     }
+> }
+> ``` 
+
+### Form 로그인을 위한 계정 확인 서비스 사용자화
+> CustomUserDetailService.java
+> ```java
+> @RequiredArgsConstructor
+> public class CustomUserDetailService implements UserDetailsService {
+>     private final static String ADMIN_USERNAME = "testUsername";
+>     private final static String ADMIN_PASSWORD = "Password1234";
+> 
+>     private final PasswordEncoder passwordEncoder;
+> 
+>     @Override
+>     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+>         // TODO: RDB Repository 와 연계 코드로 수정 가능.
+> 
+>         if (!username.equals(ADMIN_USERNAME)) {
+>             throw new UsernameNotFoundException("Invalid username");
+>         }
+>         return User.builder()
+>                 .username(username)
+>                 .roles(ADMIN_USERNAME)
+>                 .password(ADMIN_PASSWORD)
+>                 .passwordEncoder(passwordEncoder::encode)
+>                 .build();
+>     }
+> }
+> ```
+
+---
+
 ## 인가(Authorization) 구현
 ### TODO
 > TODO
