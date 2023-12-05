@@ -215,46 +215,17 @@
 >     }
 > 
 >     private Authentication getAuthentication(HttpServletRequest request) {
->         String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
->         try {
->             return BearerAuthenticationToken.of(new BearerToken(authHeader));
->         } catch (InvalidBearerTokenException e) {
->             return BearerAuthenticationToken.emptyToken();
+>         var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+>         if (ObjectUtils.isEmpty(authHeader)) {
+>             return null;
 >         }
+>         return BearerAuthenticationToken.of(authHeader);
 >     }
 > }
 > ```
 > Header 의 Bearer 토큰 값을 추출하여 Authentication 객체를 생성한 후에 해당 객체를 SecurityContext 에 등록한다.  
-> InvalidBearerTokenException 예외는 다시 throw 하지 않고 그에 맞는 Authentication 객체(BearerAuthenticationToken.emptyToken())를 
-> 만들어서 SecurityContext 에 등록한다.     
-
-### BearerToken
-> ```java
-> @Getter
-> public class BearerToken {
-> private static final String TOKEN_PREFIX = "Bearer ";
-> private final String value;
-> 
->     public BearerToken(String value) {
->         validate(value);
->         this.value = extractValue(value);
->     }
-> 
->     private void validate(String value) {
->         if (isEmptyString(value) || !value.startsWith(TOKEN_PREFIX)) {
->             throw new InvalidBearerTokenException();
->         }
->     }
-> 
->     private String extractValue(String bearerToken) {
->         return bearerToken.substring(TOKEN_PREFIX.length());
->     }
-> 
->     private boolean isEmptyString(String value) {
->         return value == null || value.isBlank();
->     }
-> }
-> ```
+> 만약 HttpHeader 에 인증 토큰이 없다면 null 을 반환한다. 혹시라도 null 대신 빈 AuthenticationToken 객체를 반환하도록 하면 
+> Spring Security 는 인증을 시도한 것으로 생각해서 permitAll() 설정한 URI 도 인증을 시도하게 된다.  
 
 ### [사용 안함] UnauthorizedExceptionFilter
 > `JwtAuthenticationFilter` 에서 인증에 실패하여 UnauthorizedException 이 발생한 경우 예외를 Response 에 담아서 반환한다.    
@@ -302,41 +273,68 @@
 
 ### BearerAuthenticationToken
 > ```java
-> public class BearerAuthenticationToken extends AbstractAuthenticationToken {
->     private final BearerToken bearerToken;
+> package starter.spring.security.springconfig.security;
 > 
->     protected BearerAuthenticationToken(BearerToken bearerToken) {
+> import org.springframework.security.authentication.AbstractAuthenticationToken;
+> import org.springframework.security.authentication.BadCredentialsException;
+> import org.springframework.util.ObjectUtils;
+> 
+> /**
+>   * Created by Yoo Ju Jin(jujin@100fac.com)
+>   * Created Date : 12/5/23
+>   * Copyright (C) 2023, Centum Factorial all rights reserved.
+>   */
+> public class BearerAuthenticationToken extends AbstractAuthenticationToken {
+>     private static final String TOKEN_PREFIX = "Bearer ";
+>     private final String value;
+> 
+>     protected BearerAuthenticationToken(String value) {
 >         super(null);
->         this.bearerToken = bearerToken;
+>         this.value = value;
 >     }
 > 
->     public static BearerAuthenticationToken of(BearerToken value) {
+>     public static BearerAuthenticationToken of(String value) {
+>         validate(value);
 >         return new BearerAuthenticationToken(value);
 >     }
-> 
+>   
 >     public static BearerAuthenticationToken emptyToken() {
 >         return new BearerAuthenticationToken(null);
 >     }
-> 
->     private boolean isEmptyToken() {
->         return ObjectUtils.isEmpty(this.bearerToken);
+>   
+>     @Override
+>     public Object getCredentials() {
+>         return getValue();
 >     }
-> 
->     private BearerToken getBearerToken() {
+>   
+>     @Override
+>     public Object getPrincipal() {
+>         return getValue();
+>     }
+>   
+>     private static void validate(String value) {
+>         if (isEmptyString(value) || !value.startsWith(TOKEN_PREFIX)) {
+>             throw new IllegalArgumentException("Bearer token needs to include a word. \"Bearer \"");
+>         }
+>     }
+>   
+>     private static String extractValue(String bearerToken) {
+>         return bearerToken.substring(TOKEN_PREFIX.length());
+>     }
+>   
+>     private static boolean isEmptyString(String value) {
+>         return value == null || value.isBlank();
+>     }
+>   
+>     private boolean isEmptyToken() {
+>         return ObjectUtils.isEmpty(this.value);
+>     }
+>   
+>     private String getValue() {
 >         if (this.isEmptyToken()) {
 >             throw new BadCredentialsException("Has no access token.");
 >         }
->         return bearerToken;
->     }
-> 
->     @Override
->     public Object getCredentials() {
->         return getBearerToken();
->     }
-> 
->     @Override
->     public Object getPrincipal() {
->         return getBearerToken();
+>         return value;
 >     }
 > }
 > ```

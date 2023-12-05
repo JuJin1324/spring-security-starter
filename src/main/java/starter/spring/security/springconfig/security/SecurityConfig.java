@@ -26,7 +26,7 @@ public class SecurityConfig {
     private final HttpBasicAuthenticationProvider httpBasicAuthenticationProvider;
 
     @Bean
-    public SecurityFilterChain bearerTokenFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain accessTokenFilterChain(HttpSecurity http) throws Exception {
         http.authorizeRequests()
                 .anyRequest().authenticated()
                 .antMatchers(POST, "/users/login").permitAll()

@@ -12,7 +12,6 @@ import starter.spring.security.accesstoken.application.port.in.ParseAccessTokenU
 import starter.spring.security.accesstoken.application.port.out.ExpiredAccessTokenException;
 import starter.spring.security.accesstoken.application.port.out.InvalidAccessTokenException;
 import starter.spring.security.springconfig.security.BearerAuthenticationToken;
-import starter.spring.security.springconfig.security.BearerToken;
 
 /**
  * Created by Yoo Ju Jin(jujin1324@daum.net)
@@ -26,21 +25,21 @@ public class AccessTokenAuthenticationProvider implements AuthenticationProvider
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        BearerAuthenticationToken bearerAuthenticationToken = (BearerAuthenticationToken) authentication;
-        BearerToken bearerToken = (BearerToken) bearerAuthenticationToken.getCredentials();
-        AccessToken accessToken = parse(bearerToken);
+        var bearerAuthenticationToken = (BearerAuthenticationToken) authentication;
+        var bearerToken = (String) bearerAuthenticationToken.getCredentials();
+        var accessToken = parse(bearerToken);
 
         return new AccessAuthenticationToken(accessToken);
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return AccessAuthenticationToken.class.isAssignableFrom(authentication);
+        return BearerAuthenticationToken.class.isAssignableFrom(authentication);
     }
 
-    private AccessToken parse(BearerToken bearerToken) {
+    private AccessToken parse(String bearerToken) {
         try {
-            return parseAccessTokenUseCase.parse(bearerToken.getValue());
+            return parseAccessTokenUseCase.parse(bearerToken);
         } catch (ExpiredAccessTokenException e) {
             throw new CredentialsExpiredException(e.getMessage());
         } catch (InvalidAccessTokenException e) {

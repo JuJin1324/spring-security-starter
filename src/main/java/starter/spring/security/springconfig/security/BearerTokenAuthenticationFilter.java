@@ -4,6 +4,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -27,11 +28,10 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private Authentication getAuthentication(HttpServletRequest request) {
-        String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        try {
-            return BearerAuthenticationToken.of(new BearerToken(authHeader));
-        } catch (InvalidBearerTokenException e) {
-            return BearerAuthenticationToken.emptyToken();
+        var authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (ObjectUtils.isEmpty(authHeader)) {
+            return null;
         }
+        return BearerAuthenticationToken.of(authHeader);
     }
 }
