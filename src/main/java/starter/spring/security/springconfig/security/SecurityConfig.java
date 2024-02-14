@@ -20,7 +20,7 @@ import static org.springframework.http.HttpMethod.POST;
 //@EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter;
+    private final AccessTokenAuthenticationFilter accessTokenAuthenticationFilter;
     private final AccessTokenAuthenticationProvider accessTokenAuthenticationProvider;
 
     private final HttpBasicAuthenticationProvider httpBasicAuthenticationProvider;
@@ -32,7 +32,7 @@ public class SecurityConfig {
                 .antMatchers(POST, "/users/login").permitAll()
                 .antMatchers(POST, "/users").permitAll()
                 .and()
-                .addFilterBefore(bearerTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(accessTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authenticationProvider(accessTokenAuthenticationProvider)

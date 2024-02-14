@@ -171,7 +171,7 @@
 
 ---
 
-## Bearer token 을 통한 인증(Authentication) 구현
+## Access token 을 통한 인증(Authentication) 구현
 ### Security 설정
 > ```java
 > @Configuration
@@ -179,8 +179,8 @@
 > @RequiredArgsConstructor
 > public class SecurityConfig {
 >     ...
->     // bearer token 을 사용한 요청에서 인증 정보를 추출하기 위해서 사용자가 생성한 커스텀 filter
->     private final BearerTokenAuthenticationFilter bearerTokenAuthenticationFilter;
+>     // access token 을 사용한 요청에서 인증 정보를 추출하기 위해서 사용자가 생성한 커스텀 filter
+>     private final AccessTokenAuthenticationFilter accessTokenAuthenticationFilter;
 >     // access token 을 사용한 요청에서 인증 정보를 검증하기 위해서 사용자가 생성한 커스텀 Provider
 >     private final AccessTokenAuthenticationProvider accessTokenAuthenticationProvider;    
 > 
@@ -191,8 +191,8 @@
 >                 .anyRequest().authenticated()     // 모든 요청에 인증이 요구된다.
 >                 .antMatchers("/authentications/phone/**").permitAll()  // 해당 URI 의 요청에는 인증이 요구되지 않는다. 
 >                 .and()
->                 // bearerTokenAuthenticationFilter 필터를 UsernamePasswordAuthenticationFilter 앞에 둔다.
->                 .addFilterBefore(bearerTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+>                 // accessTokenAuthenticationFilter 필터를 UsernamePasswordAuthenticationFilter 앞에 둔다.
+>                 .addFilterBefore(accessTokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 >                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)   // 세션을 사용하지 않는다고 설정한다.
 >                 .and()
 >                 .authenticationProvider(accessTokenAuthenticationProvider)    // 인증 로직을 담은 AccessTokenAuthenticationProvider 를 등록한다. 
@@ -203,10 +203,10 @@
 > }
 > ```
 
-### BearerTokenAuthenticationFilter
+### AccessTokenAuthenticationFilter
 > ```java
 > @Component
-> public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
+> public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
 > 
 >     @Override
 >     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -219,11 +219,11 @@
 >         if (ObjectUtils.isEmpty(authHeader)) {
 >             return null;
 >         }
->         return BearerAuthenticationToken.of(authHeader);
+>         return AccessAuthenticationToken.of(authHeader);
 >     }
 > }
 > ```
-> Header 의 Bearer 토큰 값을 추출하여 Authentication 객체를 생성한 후에 해당 객체를 SecurityContext 에 등록한다.  
+> Header 의 엑세스 토큰 값을 추출하여 Authentication 객체를 생성한 후에 해당 객체를 SecurityContext 에 등록한다.  
 > 만약 HttpHeader 에 인증 토큰이 없다면 null 을 반환한다. 혹시라도 null 대신 빈 AuthenticationToken 객체를 반환하도록 하면 
 > Spring Security 는 인증을 시도한 것으로 생각해서 permitAll() 설정한 URI 도 인증을 시도하게 된다.  
 
@@ -240,102 +240,79 @@
 > public class AccessTokenAuthenticationProvider implements AuthenticationProvider {
 >     private final ParseAccessTokenUseCase parseAccessTokenUseCase;
 > 
->     @Override
->     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
->         BearerAuthenticationToken bearerAuthenticationToken = (BearerAuthenticationToken) authentication;
->         BearerToken bearerToken = (BearerToken) bearerAuthenticationToken.getCredentials();
->         AccessToken accessToken = parse(bearerToken);
-> 
->         return new AccessAuthenticationToken(accessToken);
->     }
-> 
->     @Override
->     public boolean supports(Class<?> authentication) {
->         return AccessAuthenticationToken.class.isAssignableFrom(authentication);
->     }
-> 
->     private AccessToken parse(BearerToken bearerToken) {
->         try {
->             return parseAccessTokenUseCase.parse(bearerToken.getValue());
->         } catch (ExpiredAccessTokenException e) {
->             throw new CredentialsExpiredException(e.getMessage());
->         } catch (InvalidAccessTokenException e) {
->             throw new BadCredentialsException(e.getMessage());
->         }
->     }
+> 	  @Override
+> 	  public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+> 	  	  var accessAuthenticationToken = (AccessAuthenticationToken)authentication;
+> 	  	  var tokenValue = (String)accessAuthenticationToken.getCredentials();
+> 	  	  var accessToken = parse(tokenValue);
+>     
+> 	  	  return AccessAuthenticationToken.authenticated(accessToken);
+> 	  }
+>   
+> 	  @Override
+> 	  public boolean supports(Class<?> authentication) {
+> 	  	  return AccessAuthenticationToken.class.isAssignableFrom(authentication);
+> 	  }
+>   
+> 	  private AccessToken parse(String bearerToken) {
+> 	  	  try {
+> 	  	  	  return parseAccessTokenUseCase.parse(bearerToken);
+> 	  	  } catch (ExpiredAccessTokenException e) {
+> 	  	  	  throw new CredentialsExpiredException(e.getMessage());
+> 	  	  } catch (InvalidAccessTokenException e) {
+> 	  	  	  throw new BadCredentialsException(e.getMessage());
+> 	  	  }
+> 	  }
 > }
 > ```
-> BearerTokenAuthenticationFilter 에서 추출한 BearerToken 을 AccessToken 으로 변환하여 
+> AccessTokenAuthenticationFilter 에서 추출한 tokenValue 을 AccessToken 으로 변환하여 
 > 변환이 정상적으로 동작하는지를 통해 검증한다. 변환 도중에 예외 발생 시 예외를 던진다.  
-> 또한 bearerAuthenticationToken.getCredentials() 를 통해서 bearerAuthenticationToken 가 emptyToken(빈 토큰)인 경우 예외를 던지도록
-> 하였다.  
 > 예외는 AuthenticationException 을 상속받은 예외만 처리가 가능하다.    
 
-### BearerAuthenticationToken
+### AccessAuthenticationToken
 > ```java
-> package starter.spring.security.springconfig.security;
-> 
-> import org.springframework.security.authentication.AbstractAuthenticationToken;
-> import org.springframework.security.authentication.BadCredentialsException;
-> import org.springframework.util.ObjectUtils;
-> 
-> /**
->   * Created by Yoo Ju Jin(jujin@100fac.com)
->   * Created Date : 12/5/23
->   * Copyright (C) 2023, Centum Factorial all rights reserved.
->   */
-> public class BearerAuthenticationToken extends AbstractAuthenticationToken {
+> @Getter
+> public class AccessAuthenticationToken extends AbstractAuthenticationToken {
 >     private static final String TOKEN_PREFIX = "Bearer ";
 >     private final String value;
+>     private final AccessToken accessToken;
 > 
->     protected BearerAuthenticationToken(String value) {
->         super(null);
->         this.value = value;
->     }
-> 
->     public static BearerAuthenticationToken of(String value) {
->         validate(value);
->         return new BearerAuthenticationToken(value);
->     }
+> 	  protected AccessAuthenticationToken(String value, AccessToken accessToken, boolean authenticated) {
+> 	  	  super(null);
+> 	  	  this.value = value;
+> 	  	  this.accessToken = accessToken;
+> 	  	  super.setAuthenticated(authenticated);
+> 	  }
 >   
->     public static BearerAuthenticationToken emptyToken() {
->         return new BearerAuthenticationToken(null);
->     }
+> 	  public static AccessAuthenticationToken of(String value) {
+> 	  	  validate(value);
+>     
+> 	  	  return new AccessAuthenticationToken(value, null, false);
+> 	  }
 >   
->     @Override
->     public Object getCredentials() {
->         return getValue();
->     }
+> 	  public static AccessAuthenticationToken authenticated(AccessToken accessToken) {
+> 	  	  return new AccessAuthenticationToken(null, accessToken, true);
+> 	  }
 >   
->     @Override
->     public Object getPrincipal() {
->         return getValue();
->     }
+> 	  @Override
+> 	  public Object getCredentials() {
+> 	  	  return getValue();
+> 	  }
 >   
->     private static void validate(String value) {
->         if (isEmptyString(value) || !value.startsWith(TOKEN_PREFIX)) {
->             throw new IllegalArgumentException("Bearer token needs to include a word. \"Bearer \"");
->         }
->     }
+> 	  @Override
+> 	  public Object getPrincipal() {
+> 	  	  return getValue();
+> 	  }
 >   
->     private static String extractValue(String bearerToken) {
->         return bearerToken.substring(TOKEN_PREFIX.length());
->     }
+> 	  private static void validate(String value) {
+> 	  	  if (isEmptyString(value) || !value.startsWith(TOKEN_PREFIX)) {
+> 	  	  	  throw new IllegalArgumentException("Bearer token needs to include a word. \"Bearer \"");
+> 	  	  }
+> 	  }
 >   
->     private static boolean isEmptyString(String value) {
->         return value == null || value.isBlank();
->     }
->   
->     private boolean isEmptyToken() {
->         return ObjectUtils.isEmpty(this.value);
->     }
->   
->     private String getValue() {
->         if (this.isEmptyToken()) {
->             throw new BadCredentialsException("Has no access token.");
->         }
->         return value;
->     }
+> 	  private static boolean isEmptyString(String value) {
+> 	  	  return value == null || value.isBlank();
+> 	  }
 > }
 > ```
 
@@ -352,7 +329,7 @@
 >     ...
 > 
 >     @Bean
->     public SecurityFilterChain bearerTokenFilterChain(HttpSecurity http) throws Exception {
+>     public SecurityFilterChain accessTokenFilterChain(HttpSecurity http) throws Exception {
 >         http.authorizeRequests()
 >             ...;
 > 
@@ -372,7 +349,7 @@
 > }
 > ```
 > `http.antMatcher()`(antMatchers 아님) 에 해당 SecurityFilterChain 을 이용할 URI 를 지정할 수 있다.   
-> 여기서는 '/actuator' 로 시작하는 URI 은 Http Basic Authentication 을 이용하고, 나머지는 Bearer Token 을 이용하도록 설정하였다.
+> 여기서는 '/actuator' 로 시작하는 URI 은 Http Basic Authentication 을 이용하고, 나머지는 Access Token Authentication 을 이용하도록 설정하였다.
 
 ### 등록된 FilterChain 확인
 > FilterChainProxy.class 의 doFilter 메서드의 첫 부분에 break point 를 걸고 아무 API 호출을 한다.   

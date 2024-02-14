@@ -19,7 +19,7 @@ import java.io.IOException;
  */
 
 @Component
-public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
+public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -32,6 +32,6 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
         if (ObjectUtils.isEmpty(authHeader)) {
             return null;
         }
-        return BearerAuthenticationToken.of(authHeader);
+        return AccessAuthenticationToken.of(authHeader);
     }
 }
