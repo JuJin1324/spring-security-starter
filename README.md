@@ -442,6 +442,55 @@
 
 ---
 
+## Spring Security 6 마이그레이션
+### antMatchers(), mvcMatchers(), regexMatchers()
+> `requestMatchers()` 또는 `securityMatchers()` 로 변경
+
+### authorizeRequests()
+> `authorizeHttpRequests()` 로 변경
+
+### HttpSecurity 설정
+> 기존에는 extends WebSecurityConfigurerAdapter 를 통해 세팅,  
+> 이제 WebSecurityConfigurerAdapter 를 상속받는 방식은 삭제되었음. SecurityFilterChain 빈을 스프링 컨테이너에 등록해줘야 함.
+> (기존)
+> ```java
+> @Configuration
+> public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+> 
+>     @Override
+>     protected void configure(HttpSecurity http) throws Exception {
+>         http
+>             .authorizeHttpRequests(authz -> authz
+>                 .anyRequest().authenticated()
+>             )
+>             .httpBasic(withDefaults());
+>     }
+> 
+> }
+> ```
+> 
+> (변경) - 이 때 기존에 antMatchers 나 mvcMatchers 를 사용했다면 requestMatchers 로 변경해야 함.
+> ```java
+> @Configuration
+> public class SecurityConfiguration {
+> 
+>     @Bean
+>     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+>         http
+>             .authorizeHttpRequests(authz -> authz
+>                 .anyRequest().authenticated()
+>             )
+>             .httpBasic(withDefaults());
+>         return http.build();
+>     }
+> }
+> ```
+
+### 참조사이트
+> [스프링 부트 2.0에서 3.0 스프링 시큐리티 마이그레이션 (변경점)](https://nahwasa.com/entry/스프링-부트-20에서-30-스프링-시큐리티-마이그레이션-변경점)
+
+---
+
 ## 인가(Authorization) 구현
 ### TODO
 > TODO
