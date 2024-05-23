@@ -73,6 +73,12 @@
 > 그러면 요청이 필터를 거쳐 마지막 필터인 FilterSecurityInterceptor 에 도착하고 여기서 ProviderManager 가 사용자가 등록한 커스텀 Provider 를 사용하여
 > 인증을 진행하게 된다.  
 
+### 시큐리티 처리 Flow 구현체
+> FilterChainProxy(doFilter 메서드) -> [커스텀 필터] 
+> -> ExceptionTranslationFilter(doFilter 메서드) 
+> -> FilterSecurityInterceptor(invoke 메서드) 
+> -> ProviderManager(authenticate 메서드) 
+
 ---
 
 ## Security config
