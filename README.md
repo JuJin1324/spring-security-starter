@@ -396,23 +396,19 @@
 >                 .antMatchers(GET, "/login").permitAll()
 >                 .anyRequest().authenticated()
 >                 .and()
->                 // 로그인으로 Form Login 을 사용한다.
->                 .formLogin()
->                 // 로그인 페이지의 URL 을 입력한다.
->                 .loginPage("/login")
+>                 .formLogin()      // 로그인으로 Form Login 을 사용한다.
+>                 .usernameParameter("userId")  // spring security 에서 기본값인 username, password 의 파라미터값을 변경하게 해주는 api 입니다.
+>                 .passwordParameter("passwd")
+>                 .loginPage("/login")  // 로그인 페이지의 URL 을 입력한다.
 >                 // 로그인 프로세스의 URL 을 입력한다. 이 URL 은 직접 구현하는 것이 아닌 Spring Security 에서 처리하며, 
 >                 // 위의 로그인 페이지에서 <form> 태그에 POST 로 submit 할 URL 을 지정하는 것이다. 
 >                 .loginProcessingUrl("/login")
->                 // 로그인이 성공하면 리다이렉트할 페이지의 URL 을 입력한다.
->                 .defaultSuccessUrl("/home")
+>                 .defaultSuccessUrl("/home")   // 로그인이 성공하면 리다이렉트할 페이지의 URL 을 입력한다.
 >                 .and()
 >                 .logout()
->                 // 로그아웃의 URL 을 입력한다. 이 URL 은 직접 구현하는 것이 아닌 Spring Security 에서 처리한다.
->                 .logoutUrl("/logout")
->                 // 로그아웃 시 세션을 제거한다.
->                 .invalidateHttpSession(true)
->                 // 로그아웃 시 쿠키를 제거한다. 여기서는 스프링 세션인 JSESSIONID 를 제거한다.
->                 .deleteCookies("JSESSIONID");
+>                 .logoutUrl("/logout")     // 로그아웃의 URL 을 입력한다. 이 URL 은 직접 구현하는 것이 아닌 Spring Security 에서 처리한다.
+>                 .invalidateHttpSession(true)  // 로그아웃 시 세션을 제거한다.
+>                 .deleteCookies("JSESSIONID");     // 로그아웃 시 쿠키를 제거한다. 여기서는 스프링 세션인 JSESSIONID 를 제거한다.
 > 
 >             return http.build();
 >     }
@@ -445,6 +441,9 @@
 >     }
 > }
 > ```
+
+### 참조사이트
+> [[Spring Security] Form Login 개념 & 사용법](https://velog.io/@seongwon97/Spring-Security-Form-Login)
 
 ---
 
